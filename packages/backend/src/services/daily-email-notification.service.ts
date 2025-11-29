@@ -26,14 +26,14 @@ interface PreventionMeasure {
 
 /**
  * Get trending diseases for a specific district
- * Divides 30 days of data into 7-day windows and rotates daily
- * Uses the same logic as the dashboard API for consistency
+ * Uses 30-day period like Prevention Measures section, but divides into 7-day windows for daily rotation
+ * Uses the same query logic as the dashboard API for consistency
  */
 async function getTrendingDiseasesForDistrict(
   state: string,
   district: string
 ): Promise<TrendingDisease[]> {
-  // Get all diseases from last 30 days (same as Prevention Measures section)
+  // Get all diseases from last 30 days (same as Prevention Measures section uses dateRange: '30d')
   const thirtyDaysAgo = new Date();
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
   thirtyDaysAgo.setHours(0, 0, 0, 0);
@@ -88,11 +88,22 @@ async function getTrendingDiseasesForDistrict(
     windowStartDate.setHours(0, 0, 0, 0);
   }
 
+  // IMPORTANT: Use case-insensitive district matching to handle variations like "Khordha" vs "Khorda"
+  // Also, the Prevention Measures API doesn't filter by date - it shows ALL diseases in district
+  // So we'll use the full 30-day period but still rotate through windows for variety
+  // If current window has no diseases, fallback to full 30 days
   const conditions = [
     eq(diseaseOutbreaks.state, state),
-    eq(diseaseOutbreaks.district, district),
+    sql`LOWER(${diseaseOutbreaks.district}) = LOWER(${district})`, // Case-insensitive district match
     gte(diseaseOutbreaks.reportedDate, windowStartDate),
     lte(diseaseOutbreaks.reportedDate, windowEndDate),
+  ];
+  
+  // Also prepare fallback condition for full 30 days (like Prevention Measures section)
+  const fallbackConditions = [
+    eq(diseaseOutbreaks.state, state),
+    sql`LOWER(${diseaseOutbreaks.district}) = LOWER(${district})`,
+    gte(diseaseOutbreaks.reportedDate, thirtyDaysAgo),
   ];
   
   const dayRange = windowIndex === 0 
@@ -100,7 +111,7 @@ async function getTrendingDiseasesForDistrict(
     : windowIndex === 4 
     ? "Days 29-30" 
     : `Days ${(windowIndex * 7) + 1}-${(windowIndex + 1) * 7}`;
-  console.log(`📅 Fetching diseases for window ${windowIndex + 1}/5: ${dayRange} (${windowStartDate.toISOString().split('T')[0]} to ${windowEndDate.toISOString().split('T')[0]})`);
+  console.log(`📅 Fetching diseases for ${district}, ${state} - window ${windowIndex + 1}/5: ${dayRange} (${windowStartDate.toISOString().split('T')[0]} to ${windowEndDate.toISOString().split('T')[0]})`);
 
   // Use the same query structure as dashboard routes for consistency
   const selectFields = {
@@ -114,7 +125,7 @@ async function getTrendingDiseasesForDistrict(
     district: sql<string>`MAX(${diseaseOutbreaks.district})`,
   };
 
-  const trending = await db
+  let trending = await db
     .select(selectFields)
     .from(diseaseOutbreaks)
     .leftJoin(diseases, eq(diseaseOutbreaks.diseaseId, diseases.id))
@@ -122,6 +133,27 @@ async function getTrendingDiseasesForDistrict(
     .groupBy(diseaseOutbreaks.diseaseId)
     .orderBy(desc(sql<number>`sum(${diseaseOutbreaks.caseCount})`))
     .limit(20); // Get more to account for deduplication
+
+  // If no diseases found in current window, fallback to full 30 days (like Prevention Measures section)
+  if (trending.length === 0) {
+    console.log(`⚠️ No diseases found in current window (${windowStartDate.toISOString().split('T')[0]} to ${windowEndDate.toISOString().split('T')[0]})`);
+    console.log(`   Falling back to full 30-day period (from ${thirtyDaysAgo.toISOString().split('T')[0]})`);
+    trending = await db
+      .select(selectFields)
+      .from(diseaseOutbreaks)
+      .leftJoin(diseases, eq(diseaseOutbreaks.diseaseId, diseases.id))
+      .where(and(...fallbackConditions))
+      .groupBy(diseaseOutbreaks.diseaseId)
+      .orderBy(desc(sql<number>`sum(${diseaseOutbreaks.caseCount})`))
+      .limit(20);
+    console.log(`📊 Fallback query found ${trending.length} diseases in full 30-day period for "${district}", "${state}"`);
+    if (trending.length === 0) {
+      console.log(`   ⚠️ Still no diseases found! This might indicate:`);
+      console.log(`      1. District name mismatch (check if district is stored as "Khordha" vs "Khorda")`);
+      console.log(`      2. No disease data exists for this district in the last 30 days`);
+      console.log(`      3. State/district combination doesn't match database records`);
+    }
+  }
 
   // Deduplicate by disease name (case-insensitive) - same as dashboard route
   const seenDiseaseNames = new Map<string, TrendingDisease>();
@@ -181,6 +213,7 @@ async function getPreventionMeasuresForDiseases(
   }
 
   // Get diseases that are active in this district (same as dashboard route)
+  // IMPORTANT: Use case-insensitive district matching like in trending diseases query
   const districtDiseases = await db
     .selectDistinct({ 
       diseaseId: diseaseOutbreaks.diseaseId,
@@ -191,7 +224,7 @@ async function getPreventionMeasuresForDiseases(
     .where(
       and(
         eq(diseaseOutbreaks.state, state),
-        eq(diseaseOutbreaks.district, district),
+        sql`LOWER(${diseaseOutbreaks.district}) = LOWER(${district})`, // Case-insensitive district match
         eq(diseases.isActive, true),
         inArray(diseaseOutbreaks.diseaseId, diseaseIds)
       )
@@ -199,13 +232,16 @@ async function getPreventionMeasuresForDiseases(
     .limit(20);
 
   if (districtDiseases.length === 0) {
+    console.log(`⚠️ No district diseases found for diseaseIds: ${diseaseIds.join(", ")}, state: ${state}, district: ${district}`);
     return {};
   }
 
+  console.log(`📊 Found ${districtDiseases.length} district diseases:`, districtDiseases.map(d => d.diseaseName));
   const activeDiseaseIds = districtDiseases.map(d => d.diseaseId);
 
   // Get prevention measures with priority: district-specific > state-specific > general
   // Same logic as dashboard route
+  // IMPORTANT: Use case-insensitive district matching like in other queries
   const preventionMeasures = await db
     .select()
     .from(diseasePrevention)
@@ -214,10 +250,10 @@ async function getPreventionMeasuresForDiseases(
         inArray(diseasePrevention.diseaseId, activeDiseaseIds),
         eq(diseasePrevention.isActive, true),
         or(
-          // District-specific
+          // District-specific (case-insensitive)
           and(
             eq(diseasePrevention.state, state),
-            eq(diseasePrevention.district, district)
+            sql`LOWER(${diseasePrevention.district}) = LOWER(${district})`
           ),
           // State-specific
           and(
@@ -242,11 +278,13 @@ async function getPreventionMeasuresForDiseases(
       desc(diseasePrevention.priority)
     );
 
+  console.log(`📊 Found ${preventionMeasures.length} prevention measures from database for ${activeDiseaseIds.length} diseases`);
+
   // Group by disease name (same format as dashboard route)
   const grouped: Record<string, PreventionMeasure[]> = {};
   
   districtDiseases.forEach(disease => {
-    grouped[disease.diseaseName] = preventionMeasures
+    const diseaseMeasures = preventionMeasures
       .filter(pm => pm.diseaseId === disease.diseaseId)
       .map(pm => {
         const measures = Array.isArray(pm.measures) ? pm.measures : [];
@@ -259,9 +297,104 @@ async function getPreventionMeasuresForDiseases(
           source: pm.source || "",
         };
       });
+    
+    grouped[disease.diseaseName] = diseaseMeasures;
+    
+    if (diseaseMeasures.length > 0) {
+      console.log(`  ✅ ${disease.diseaseName}: ${diseaseMeasures.length} prevention measures`);
+    } else {
+      console.log(`  ⚠️ ${disease.diseaseName}: No prevention measures found`);
+    }
   });
 
+  console.log(`📊 Final grouped prevention measures:`, Object.keys(grouped).map(key => `${key} (${grouped[key].length} measures)`));
   return grouped;
+}
+
+/**
+ * Generate HTML for Prevention Measures section
+ * Shows all prevention measures grouped by disease
+ */
+function generatePreventionMeasuresSection(
+  trendingDiseases: TrendingDisease[],
+  preventionMeasures: Record<string, PreventionMeasure[]>
+): string {
+  if (trendingDiseases.length === 0) {
+    return "";
+  }
+
+  console.log(`📊 Generating Prevention Measures section for ${trendingDiseases.length} diseases`);
+  console.log(`📊 Available prevention measures keys:`, Object.keys(preventionMeasures));
+  console.log(`📊 Trending disease names:`, trendingDiseases.map(d => d.diseaseName));
+
+  let measuresHtml = "";
+  let hasAnyMeasures = false;
+
+  trendingDiseases.forEach((disease) => {
+    const measures = preventionMeasures[disease.diseaseName] || [];
+    
+    console.log(`  Checking "${disease.diseaseName}": ${measures.length} measures found`);
+    
+    if (measures.length > 0) {
+      hasAnyMeasures = true;
+      measuresHtml += `
+        <div style="background: #FFFFFF; border: 1px solid #E5E7EB; border-radius: 12px; padding: 20px; margin-bottom: 16px;">
+          <h3 style="color: #1A1A1A; margin: 0 0 16px 0; font-size: 18px; font-weight: 700; border-bottom: 2px solid #F3F4F6; padding-bottom: 8px;">
+            ${disease.diseaseName}
+          </h3>
+          ${measures.map((measure) => {
+            const measureItems = Array.isArray(measure.measures) 
+              ? measure.measures 
+              : typeof measure.measures === 'string' 
+              ? [measure.measures] 
+              : [];
+            
+            return `
+              <div style="margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid #F3F4F6;">
+                <h4 style="color: #1A1A1A; margin: 0 0 8px 0; font-size: 15px; font-weight: 600;">
+                  ${measure.title}
+                </h4>
+                ${measure.description ? `
+                  <p style="color: #6B7280; margin: 0 0 8px 0; font-size: 13px; line-height: 1.5;">
+                    ${measure.description}
+                  </p>
+                ` : ""}
+                ${measureItems.length > 0 ? `
+                  <ul style="color: #6B7280; margin: 8px 0 0 0; padding-left: 20px; font-size: 13px; line-height: 1.6;">
+                    ${measureItems.map(item => `<li style="margin-bottom: 6px;">${item}</li>`).join("")}
+                  </ul>
+                ` : ""}
+                ${measure.category ? `
+                  <p style="color: #9CA3AF; margin: 8px 0 0 0; font-size: 11px; font-style: italic;">
+                    Category: ${measure.category}
+                  </p>
+                ` : ""}
+              </div>
+            `;
+          }).join("")}
+        </div>
+      `;
+    }
+  });
+
+  if (!hasAnyMeasures) {
+    return `
+      <div style="background: #F9FAFB; padding: 20px; border-radius: 8px; margin: 30px 0; border: 1px solid #E5E7EB;">
+        <h3 style="color: #1A1A1A; margin: 0 0 12px 0; font-size: 16px;">💡 Prevention Measures</h3>
+        <p style="color: #6B7280; margin: 0; font-size: 14px;">
+          Prevention measures are being updated. Please check the website for the latest information.
+        </p>
+      </div>
+    `;
+  }
+
+  return `
+    <h2 style="color: #1A1A1A; margin: 40px 0 20px 0; font-size: 22px; font-weight: 700;">Prevention Measures</h2>
+    <p style="color: #6B7280; margin: 0 0 20px 0; font-size: 14px;">
+      Based on the trending diseases in your area, here are the recommended prevention measures:
+    </p>
+    ${measuresHtml}
+  `;
 }
 
 /**
@@ -377,16 +510,7 @@ function generateDailyAlertEmail(
           
           ${diseasesHtml}
           
-          <div style="background: #F9FAFB; padding: 20px; border-radius: 8px; margin: 30px 0; border: 1px solid #E5E7EB;">
-            <h3 style="color: #1A1A1A; margin: 0 0 12px 0; font-size: 16px;">💡 General Prevention Tips</h3>
-            <ul style="color: #6B7280; margin: 0; padding-left: 20px; font-size: 14px;">
-              <li>Wash hands frequently with soap and water</li>
-              <li>Maintain good personal hygiene</li>
-              <li>Stay hydrated and eat nutritious food</li>
-              <li>Get adequate sleep and exercise</li>
-              <li>Follow local health guidelines</li>
-            </ul>
-          </div>
+          ${generatePreventionMeasuresSection(trendingDiseases, preventionMeasures)}
           
           <div style="text-align: center; margin: 30px 0;">
             <a href="${process.env.FRONTEND_URL || "http://localhost:3000"}/prevention-measures" 
@@ -438,9 +562,17 @@ export async function sendDailyDiseaseAlert(userId: string): Promise<boolean> {
     }
 
     // Get trending diseases for user's district (rotating 7-day windows from last 30 days)
-    console.log(`📊 Fetching trending diseases for ${user.district}, ${user.state} (7-day rotating window from last 30 days)`);
+    console.log(`📊 Fetching trending diseases for district: "${user.district}", state: "${user.state}" (7-day rotating window from last 30 days)`);
     const trendingDiseases = await getTrendingDiseasesForDistrict(user.state, user.district);
-    console.log(`📊 Found ${trendingDiseases.length} trending diseases:`, trendingDiseases.map(d => d.diseaseName));
+    console.log(`📊 Found ${trendingDiseases.length} trending diseases for "${user.district}":`, trendingDiseases.map(d => d.diseaseName));
+    
+    if (trendingDiseases.length === 0) {
+      console.log(`⚠️ WARNING: No diseases found for district "${user.district}", state "${user.state}"`);
+      console.log(`   This could be due to:`);
+      console.log(`   1. No diseases in the current 7-day window AND no diseases in the last 30 days`);
+      console.log(`   2. District name mismatch (e.g., "Khordha" vs "Khorda")`);
+      console.log(`   3. No disease data for this district`);
+    }
 
     // Get disease IDs
     const diseaseIds = trendingDiseases.map((d) => d.diseaseId).filter(Boolean);

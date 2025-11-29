@@ -170,7 +170,7 @@ app.use((err: Error, req: express.Request, res: express.Response, next: express.
 // Cron format: minute hour day month day-of-week
 // Run at 4:56 PM IST every day
 // Using Asia/Kolkata timezone
-cron.schedule("31 17 * * *", async () => {
+cron.schedule("59 19 * * *", async () => {
   console.log("⏰ Daily email notification job triggered at 4:56 PM IST");
   try {
     await sendDailyDiseaseAlertsToAllUsers();
