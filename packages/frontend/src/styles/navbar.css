@@ -1,0 +1,206 @@
+/* Navbar Styles - Glassmorphism */
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.3s ease;
+}
+
+.navbar-scrolled {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 70px;
+}
+
+.navbar-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  color: var(--text-primary);
+  font-weight: 700;
+  font-size: 1.5rem;
+  transition: transform 0.3s ease;
+}
+
+.navbar-logo:hover {
+  transform: scale(1.05);
+}
+
+.navbar-logo-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  box-shadow: 8px 8px 16px #bebebe, -8px -8px 16px #ffffff;
+}
+
+.navbar-logo-text {
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.navbar-links {
+  display: none;
+  gap: 8px;
+}
+
+@media (min-width: 768px) {
+  .navbar-links {
+    display: flex;
+  }
+}
+
+.navbar-link {
+  position: relative;
+  padding: 10px 20px;
+  border-radius: 12px;
+  text-decoration: none;
+  color: var(--text-primary);
+  font-weight: 600;
+  font-size: 15px;
+  transition: all 0.3s ease;
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(10px);
+}
+
+.navbar-link:hover:not(.navbar-link-active) {
+  background: rgba(99, 102, 241, 0.1);
+  color: var(--primary);
+  transform: translateY(-2px);
+}
+
+.navbar-link-active {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%) !important;
+  color: white !important;
+  box-shadow: 4px 4px 8px rgba(99, 102, 241, 0.3) !important;
+  transform: translateY(0) !important;
+}
+
+.navbar-link-active:hover {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%) !important;
+  color: white !important;
+  transform: translateY(0) !important;
+}
+
+.navbar-link-active::before {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80%;
+  height: 3px;
+  background: white;
+  border-radius: 2px;
+  opacity: 0.8;
+}
+
+.navbar-actions {
+  display: none;
+  gap: 12px;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+@media (min-width: 768px) {
+  .navbar-actions {
+    display: flex;
+  }
+}
+
+.navbar-mobile-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-primary);
+  padding: 8px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  z-index: 1001;
+}
+
+/* Hide hamburger menu on desktop/larger screens */
+@media (min-width: 768px) {
+  .navbar-mobile-toggle {
+    display: none !important;
+  }
+  
+  .navbar-mobile-menu {
+    display: none !important;
+  }
+}
+
+.navbar-mobile-toggle:hover {
+  background: rgba(99, 102, 241, 0.1);
+}
+
+.navbar-mobile-menu {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 16px 0;
+  animation: slideDown 0.3s ease;
+}
+
+.navbar-mobile-link {
+  display: block;
+  padding: 14px 20px;
+  text-decoration: none;
+  color: var(--text-primary);
+  font-weight: 600;
+  border-radius: 12px;
+  margin: 4px 0;
+  transition: all 0.3s ease;
+}
+
+.navbar-mobile-link:hover {
+  background: rgba(99, 102, 241, 0.1);
+  color: var(--primary);
+}
+
+.navbar-mobile-link-active {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+  color: white;
+  box-shadow: 2px 2px 4px rgba(99, 102, 241, 0.2);
+}
+
+.navbar-mobile-login {
+  width: calc(100% - 40px);
+  margin: 12px 20px 0;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+

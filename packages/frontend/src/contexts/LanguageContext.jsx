@@ -1,0 +1,47 @@
+import { createContext, useContext, useState, useEffect } from 'react'
+
+const LanguageContext = createContext()
+
+// Indian languages with their native names
+export const languages = {
+  en: { name: 'English', native: 'English' },
+  hi: { name: 'Hindi', native: 'हिंदी' },
+  bn: { name: 'Bengali', native: 'বাংলা' },
+  te: { name: 'Telugu', native: 'తెలుగు' },
+  mr: { name: 'Marathi', native: 'मराठी' },
+  ta: { name: 'Tamil', native: 'தமிழ்' },
+  gu: { name: 'Gujarati', native: 'ગુજરાતી' },
+  kn: { name: 'Kannada', native: 'ಕನ್ನಡ' },
+  ml: { name: 'Malayalam', native: 'മലയാളം' },
+  or: { name: 'Odia', native: 'ଓଡ଼ିଆ' },
+  pa: { name: 'Punjabi', native: 'ਪੰਜਾਬੀ' },
+  as: { name: 'Assamese', native: 'অসমীয়া' },
+  ur: { name: 'Urdu', native: 'اردو' },
+}
+
+export function LanguageProvider({ children }) {
+  const [language, setLanguage] = useState(() => {
+    const savedLang = localStorage.getItem('language')
+    return savedLang || 'en'
+  })
+
+  useEffect(() => {
+    localStorage.setItem('language', language)
+    document.documentElement.setAttribute('lang', language)
+  }, [language])
+
+  return (
+    <LanguageContext.Provider value={{ language, setLanguage, languages }}>
+      {children}
+    </LanguageContext.Provider>
+  )
+}
+
+export function useLanguage() {
+  const context = useContext(LanguageContext)
+  if (!context) {
+    throw new Error('useLanguage must be used within LanguageProvider')
+  }
+  return context
+}
+

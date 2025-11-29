@@ -1,0 +1,372 @@
+/* Prevention Measures Page Styles */
+
+.prevention-measures-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-main);
+}
+
+.prevention-main {
+  flex: 1;
+  padding: 40px 0;
+}
+
+.prevention-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.prevention-header-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+  border-radius: 20px;
+  margin-bottom: 20px;
+  box-shadow: 8px 8px 16px rgba(0, 0, 0, 0.1);
+  color: white;
+}
+
+.prevention-header h1 {
+  font-size: 3rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+}
+
+.prevention-header p {
+  font-size: 1.125rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+/* Filters Card */
+.prevention-filters-card {
+  background: var(--bg-card);
+  border-radius: 24px;
+  padding: 32px;
+  box-shadow: 12px 12px 24px #bebebe, -12px -12px 24px #ffffff;
+  margin-bottom: 32px;
+}
+
+.prevention-filters-card h3 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 24px;
+}
+
+.prevention-filters-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 24px;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.filter-group label {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.filter-group .input {
+  padding: 12px 16px;
+  border: 2px solid transparent;
+  border-radius: 12px;
+  background: var(--bg-main);
+  color: var(--text-primary);
+  font-size: 1rem;
+  font-weight: 500;
+  box-shadow: inset 4px 4px 8px #bebebe, inset -4px -4px 8px #ffffff;
+  transition: all 0.3s ease;
+}
+
+.filter-group .input:focus {
+  outline: none;
+  border-color: var(--accent-primary);
+  box-shadow: inset 4px 4px 8px #bebebe, inset -4px -4px 8px #ffffff, 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.filter-group .input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Prevention Cards */
+.prevention-measures-container {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.prevention-card {
+  background: var(--bg-card);
+  border-radius: 24px;
+  padding: 32px;
+  box-shadow: 12px 12px 24px #bebebe, -12px -12px 24px #ffffff;
+  transition: all 0.3s ease;
+}
+
+.prevention-card:hover {
+  box-shadow: 8px 8px 16px #bebebe, -8px -8px 16px #ffffff;
+  transform: translateY(-4px);
+}
+
+.prevention-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid var(--accent-primary);
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.prevention-disease-name {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.prevention-disease-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: var(--bg-main);
+  border-radius: 20px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  box-shadow: inset 2px 2px 4px #bebebe, inset -2px -2px 4px #ffffff;
+}
+
+.prevention-measures-list {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.prevention-measure-item {
+  padding: 24px;
+  background: var(--bg-main);
+  border-radius: 16px;
+  box-shadow: inset 4px 4px 8px #bebebe, inset -4px -4px 8px #ffffff;
+  transition: all 0.3s ease;
+}
+
+.prevention-measure-item:hover {
+  box-shadow: inset 2px 2px 4px #bebebe, inset -2px -2px 4px #ffffff;
+}
+
+.prevention-measure-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.prevention-measure-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+  flex: 1;
+  min-width: 200px;
+}
+
+.prevention-measure-badges {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.prevention-category {
+  padding: 6px 12px;
+  background: var(--accent-primary);
+  color: white;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.prevention-priority {
+  padding: 6px 12px;
+  color: white;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.prevention-description {
+  color: var(--text-secondary);
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  margin-bottom: 16px;
+}
+
+.prevention-measures-list-items {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.prevention-measures-list-items li {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--bg-card);
+  border-radius: 12px;
+  color: var(--text-primary);
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+}
+
+.prevention-measures-list-items li:hover {
+  box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.1);
+  transform: translateX(4px);
+}
+
+.prevention-measures-list-items li .check-icon {
+  color: var(--accent-primary);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.prevention-source {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+}
+
+.prevention-source strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+/* Empty States */
+.prevention-empty-state {
+  text-align: center;
+  padding: 80px 20px;
+  background: var(--bg-card);
+  border-radius: 24px;
+  box-shadow: 12px 12px 24px #bebebe, -12px -12px 24px #ffffff;
+}
+
+.prevention-empty-state svg {
+  color: var(--text-secondary);
+  margin-bottom: 24px;
+  opacity: 0.5;
+}
+
+.prevention-empty-state h3 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+}
+
+.prevention-empty-state p {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+/* Loading State */
+.prevention-loading {
+  text-align: center;
+  padding: 80px 20px;
+  background: var(--bg-card);
+  border-radius: 24px;
+  box-shadow: 12px 12px 24px #bebebe, -12px -12px 24px #ffffff;
+}
+
+.loading-spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid var(--bg-main);
+  border-top-color: var(--accent-primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 24px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.prevention-loading p {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .prevention-header h1 {
+    font-size: 2rem;
+  }
+
+  .prevention-header-icon {
+    width: 60px;
+    height: 60px;
+  }
+
+  .prevention-filters-card {
+    padding: 24px;
+  }
+
+  .prevention-filters-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .prevention-card {
+    padding: 24px;
+  }
+
+  .prevention-disease-name {
+    font-size: 1.5rem;
+  }
+
+  .prevention-card-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .prevention-measure-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .prevention-measure-title {
+    min-width: auto;
+  }
+}
+

@@ -1,0 +1,50 @@
+/* Global Visibility Fixes - Ensure All Components Are Visible */
+
+/* Force visibility for all elements */
+* {
+  opacity: inherit;
+  visibility: inherit;
+}
+
+/* Ensure text is always visible */
+h1, h2, h3, h4, h5, h6, p, span, div, a, button, label, input, textarea, select {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* Prevent any elements from being hidden */
+[style*="opacity: 0"],
+[style*="visibility: hidden"],
+[style*="display: none"] {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* Ensure cards are visible */
+.card,
+.stat-card,
+.feature-card,
+.benefit-card,
+.dashboard-card {
+  opacity: 1 !important;
+  visibility: visible !important;
+  display: block !important;
+}
+
+/* Ensure buttons are visible */
+.btn,
+button {
+  opacity: 1 !important;
+  visibility: visible !important;
+  display: inline-flex !important;
+}
+
+/* Force visibility for GSAP animated elements after animation */
+.gsap-animated,
+.hero-item,
+.stat-card,
+.feature-card {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
