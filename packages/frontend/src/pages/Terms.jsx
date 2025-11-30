@@ -1,9 +1,12 @@
 import Navbar from '../components/layout/Navbar'
 import Footer from '../components/layout/Footer'
 import { FileText } from 'lucide-react'
+import { useLanguage } from '../contexts/LanguageContext'
+import { t } from '../translations'
 import '../styles/legal.css'
 
 export default function Terms() {
+  const { language } = useLanguage()
   return (
     <div className="legal-page">
       <Navbar />
@@ -11,40 +14,40 @@ export default function Terms() {
         <div className="container">
           <div className="legal-header">
             <FileText size={48} className="legal-icon" />
-            <h1>Terms of Service</h1>
-            <p>Last updated: {new Date().toLocaleDateString()}</p>
+            <h1>{t('termsOfService', language)}</h1>
+            <p>{t('lastUpdated', language)}: {new Date().toLocaleDateString()}</p>
           </div>
 
           <div className="legal-content">
             <section>
-              <h2>1. Acceptance of Terms</h2>
-              <p>By accessing and using PathoGen, you accept and agree to be bound by these Terms of Service.</p>
+              <h2>1. {t('acceptanceOfTerms', language)}</h2>
+              <p>{t('acceptanceOfTermsDesc', language)}</p>
             </section>
 
             <section>
-              <h2>2. Use of Service</h2>
-              <p>You agree to:</p>
+              <h2>2. {t('useOfService', language)}</h2>
+              <p>{t('youAgreeTo', language)}:</p>
               <ul>
-                <li>Provide accurate and truthful information</li>
-                <li>Use the service for lawful purposes only</li>
-                <li>Not misuse or abuse the platform</li>
-                <li>Respect the privacy of other users</li>
+                <li>{t('provideAccurateInfo', language)}</li>
+                <li>{t('useForLawfulPurposes', language)}</li>
+                <li>{t('notMisusePlatform', language)}</li>
+                <li>{t('respectPrivacy', language)}</li>
               </ul>
             </section>
 
             <section>
-              <h2>3. Medical Disclaimer</h2>
-              <p>PathoGen is a public health monitoring platform and does not provide medical advice. Always consult healthcare professionals for medical concerns.</p>
+              <h2>3. {t('medicalDisclaimer', language)}</h2>
+              <p>{t('medicalDisclaimerDesc', language)}</p>
             </section>
 
             <section>
-              <h2>4. Limitation of Liability</h2>
-              <p>PathoGen is not liable for any indirect, incidental, or consequential damages arising from use of the platform.</p>
+              <h2>4. {t('limitationOfLiability', language)}</h2>
+              <p>{t('limitationOfLiabilityDesc', language)}</p>
             </section>
 
             <section>
-              <h2>5. Changes to Terms</h2>
-              <p>We reserve the right to modify these terms at any time. Continued use constitutes acceptance of changes.</p>
+              <h2>5. {t('changesToTerms', language)}</h2>
+              <p>{t('changesToTermsDesc', language)}</p>
             </section>
           </div>
         </div>

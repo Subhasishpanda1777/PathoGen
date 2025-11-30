@@ -3,6 +3,8 @@ import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { Shield, MapPin, AlertCircle, CheckCircle, Bell, BellOff } from 'lucide-react'
 import { dashboardAPI, authAPI } from '../utils/api'
+import { useLanguage } from '../contexts/LanguageContext'
+import { t } from '../translations'
 import '../styles/prevention-measures.css'
 
 gsap.registerPlugin(ScrollTrigger)
@@ -536,6 +538,7 @@ const mockPreventionMeasures = {
 }
 
 export default function PreventionMeasures() {
+  const { language } = useLanguage()
   const containerRef = useRef(null)
   const [selectedState, setSelectedState] = useState('')
   const [selectedDistrict, setSelectedDistrict] = useState('')
@@ -581,9 +584,14 @@ export default function PreventionMeasures() {
       const newValue = !emailNotificationsEnabled
       await authAPI.updateEmailNotifications(newValue)
       setEmailNotificationsEnabled(newValue)
+      // Show success message
+      const message = newValue 
+        ? t('dailyEmailAlertsEnabled', language)
+        : t('dailyEmailAlertsDisabled', language)
+      alert(message)
     } catch (error) {
       console.error('Failed to update email notifications:', error)
-      alert('Failed to update email notification preference. Please try again.')
+      alert(t('failedToUpdateNotifications', language))
     } finally {
       setLoadingNotificationToggle(false)
     }
@@ -860,8 +868,8 @@ export default function PreventionMeasures() {
                 <Shield size={48} />
               </div>
               <div style={{ flex: 1 }}>
-                <h1>Prevention Measures</h1>
-                <p>Comprehensive prevention guidelines for diseases in your selected district</p>
+                <h1>{t('preventionMeasures', language)}</h1>
+                <p>{t('preventionMeasuresDescription', language)}</p>
               </div>
             </div>
             {/* Email Notification Toggle - Top Right */}
@@ -876,7 +884,7 @@ export default function PreventionMeasures() {
                 fontWeight: 500
               }}>
                 {emailNotificationsEnabled ? <Bell size={18} /> : <BellOff size={18} />}
-                <span>Daily Email Alerts</span>
+                <span>{t('dailyEmailAlerts', language)}</span>
               </label>
               <button
                 onClick={handleToggleEmailNotifications}
@@ -912,10 +920,10 @@ export default function PreventionMeasures() {
 
           {/* Filters */}
           <div className="prevention-filters-card">
-            <h3>Select Location</h3>
+            <h3>{t('selectLocation', language)}</h3>
             <div className="prevention-filters-grid">
               <div className="filter-group">
-                <label>State</label>
+                <label>{t('state', language)}</label>
                 <select
                   value={selectedState}
                   onChange={(e) => {
@@ -924,7 +932,7 @@ export default function PreventionMeasures() {
                   }}
                   className="input"
                 >
-                  <option value="">Select State</option>
+                  <option value="">{t('selectState', language)}</option>
                   {INDIAN_STATES.map((state) => (
                     <option key={state} value={state}>
                       {state}
@@ -934,7 +942,7 @@ export default function PreventionMeasures() {
               </div>
 
               <div className="filter-group">
-                <label>District</label>
+                <label>{t('district', language)}</label>
                 <select
                   value={selectedDistrict}
                   onChange={(e) => setSelectedDistrict(e.target.value)}
@@ -943,12 +951,12 @@ export default function PreventionMeasures() {
                 >
                   <option value="">
                     {!selectedState
-                      ? 'Select State First'
+                      ? t('selectStateFirst', language)
                       : loadingDistricts
-                        ? 'Loading Districts...'
+                        ? t('loadingDistricts', language)
                         : districts.length === 0
-                          ? 'No Districts Found'
-                          : 'Select District'}
+                          ? t('noDistrictsFound', language)
+                          : t('selectDistrict', language)}
                   </option>
                   {!loadingDistricts && districts.map((district) => (
                     <option key={district} value={district}>
@@ -964,22 +972,22 @@ export default function PreventionMeasures() {
           {!selectedState || !selectedDistrict ? (
             <div className="prevention-empty-state">
               <AlertCircle size={48} />
-              <h3>Select State and District</h3>
-              <p>Please select a state and district to view prevention measures for diseases in that area.</p>
+              <h3>{t('selectStateAndDistrict', language)}</h3>
+              <p>{t('selectStateAndDistrictDesc', language)}</p>
             </div>
           ) : loading ? (
             <div className="prevention-loading">
               <div className="loading-spinner"></div>
-              <p>Loading prevention measures...</p>
+              <p>{t('loadingPreventionMeasures', language)}</p>
             </div>
           ) : Object.keys(preventionMeasures).length === 0 ? (
             <div className="prevention-empty-state">
               <AlertCircle size={48} />
-              <h3>No Prevention Measures Available</h3>
+              <h3>{t('noPreventionMeasuresAvailable', language)}</h3>
               <p>
                 {trendingDiseases.length === 0
-                  ? `No trending diseases found in ${selectedDistrict}, ${selectedState}. Prevention measures are only shown for diseases that are currently trending in the selected district.`
-                  : `No prevention measures found for trending diseases in ${selectedDistrict}, ${selectedState}.`}
+                  ? t('noTrendingDiseasesForPrevention', language).replace('{district}', selectedDistrict).replace('{state}', selectedState)
+                  : t('noPreventionMeasuresDesc', language).replace('{district}', selectedDistrict).replace('{state}', selectedState)}
               </p>
             </div>
           ) : (
@@ -1046,7 +1054,7 @@ export default function PreventionMeasures() {
                             
                             {measure.source && (
                               <div className="prevention-source">
-                                <span>Source: <strong>{measure.source}</strong></span>
+                                <span>{t('source', language)}: <strong>{measure.source}</strong></span>
                               </div>
                             )}
                           </div>

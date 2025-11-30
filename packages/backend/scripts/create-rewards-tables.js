@@ -90,6 +90,23 @@ async function createRewardsTables() {
     `;
     console.log("✅ gift_card_redemptions table created/verified\n");
 
+    // Create user_certificates table
+    console.log("📋 Creating user_certificates table...");
+    await sql`
+      CREATE TABLE IF NOT EXISTS user_certificates (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        certificate_type VARCHAR(100) DEFAULT 'achievement' NOT NULL,
+        certificate_name VARCHAR(255) NOT NULL,
+        points_at_time INTEGER NOT NULL,
+        certificate_number VARCHAR(100) NOT NULL UNIQUE,
+        claimed_at TIMESTAMP DEFAULT NOW() NOT NULL,
+        metadata JSONB,
+        UNIQUE(user_id, certificate_type)
+      );
+    `;
+    console.log("✅ user_certificates table created/verified\n");
+
     // Create indexes for better performance
     console.log("📋 Creating indexes...");
     await sql`CREATE INDEX IF NOT EXISTS idx_user_rewards_user_id ON user_rewards(user_id);`;
@@ -99,6 +116,8 @@ async function createRewardsTables() {
     await sql`CREATE INDEX IF NOT EXISTS idx_user_contributions_points ON user_contributions(total_points DESC);`;
     await sql`CREATE INDEX IF NOT EXISTS idx_gift_card_redemptions_user_id ON gift_card_redemptions(user_id);`;
     await sql`CREATE INDEX IF NOT EXISTS idx_gift_card_redemptions_status ON gift_card_redemptions(status);`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_user_certificates_user_id ON user_certificates(user_id);`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_user_certificates_number ON user_certificates(certificate_number);`;
     console.log("✅ Indexes created/verified\n");
 
     console.log("✅ All rewards tables created successfully!\n");

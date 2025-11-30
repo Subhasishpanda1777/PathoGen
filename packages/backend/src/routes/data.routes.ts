@@ -3,13 +3,13 @@
  * Handles dataset imports, data pipeline operations, and AI processing
  */
 
-import express from "express";
+import express, { Router } from "express";
 import { authenticate, requireAdmin } from "../middleware/auth.middleware.js";
 import { importICMRData, importMoHFWData, importVRDLData } from "../services/dataset.service.js";
 import { fetchGoogleTrends, fetchRedditPosts, fetchTwitterPosts, processScrapedData } from "../services/data-pipeline.service.js";
 import { processSymptomReports, detectAnomalies, forecastOutbreaks } from "../services/ai-models.service.js";
 
-const router = express.Router();
+const router: Router = express.Router();
 
 /**
  * POST /api/data/import/icmr
@@ -30,14 +30,14 @@ router.post("/import/icmr", authenticate, requireAdmin, async (req, res) => {
     
     const result = await importICMRData(data);
     
-    res.json({
+    return res.json({
       success: true,
       message: data ? "ICMR data imported successfully" : "Mock ICMR data imported successfully",
       ...result,
     });
   } catch (error: any) {
     console.error("Error importing ICMR data:", error);
-    res.status(500).json({
+    return res.status(500).json({
       error: "Internal Server Error",
       message: "Failed to import ICMR data",
       details: error.message,
@@ -64,14 +64,14 @@ router.post("/import/mohfw", authenticate, requireAdmin, async (req, res) => {
     
     const result = await importMoHFWData(data);
     
-    res.json({
+    return res.json({
       success: true,
       message: data ? "MoHFW data imported successfully" : "Mock MoHFW data imported successfully",
       ...result,
     });
   } catch (error: any) {
     console.error("Error importing MoHFW data:", error);
-    res.status(500).json({
+    return res.status(500).json({
       error: "Internal Server Error",
       message: "Failed to import MoHFW data",
       details: error.message,
@@ -98,14 +98,14 @@ router.post("/import/vrdl", authenticate, requireAdmin, async (req, res) => {
     
     const result = await importVRDLData(data);
     
-    res.json({
+    return res.json({
       success: true,
       message: data ? "VRDL data imported successfully" : "Mock VRDL data imported successfully",
       ...result,
     });
   } catch (error: any) {
     console.error("Error importing VRDL data:", error);
-    res.status(500).json({
+    return res.status(500).json({
       error: "Internal Server Error",
       message: "Failed to import VRDL data",
       details: error.message,
@@ -131,13 +131,13 @@ router.post("/pipeline/google-trends", authenticate, requireAdmin, async (req, r
     const data = await fetchGoogleTrends(keywords, timeframe);
     const processed = await processScrapedData("google", data);
     
-    res.json({
+    return res.json({
       success: true,
       data: processed,
     });
   } catch (error: any) {
     console.error("Error fetching Google Trends:", error);
-    res.status(500).json({
+    return res.status(500).json({
       error: "Internal Server Error",
       message: "Failed to fetch Google Trends data",
       details: error.message,
@@ -163,13 +163,13 @@ router.post("/pipeline/reddit", authenticate, requireAdmin, async (req, res) => 
     const data = await fetchRedditPosts(keywords, limit || 10);
     const processed = await processScrapedData("reddit", data);
     
-    res.json({
+    return res.json({
       success: true,
       data: processed,
     });
   } catch (error: any) {
     console.error("Error fetching Reddit posts:", error);
-    res.status(500).json({
+    return res.status(500).json({
       error: "Internal Server Error",
       message: "Failed to fetch Reddit posts",
       details: error.message,
@@ -195,13 +195,13 @@ router.post("/pipeline/twitter", authenticate, requireAdmin, async (req, res) =>
     const data = await fetchTwitterPosts(keywords, limit || 10);
     const processed = await processScrapedData("twitter", data);
     
-    res.json({
+    return res.json({
       success: true,
       data: processed,
     });
   } catch (error: any) {
     console.error("Error fetching Twitter posts:", error);
-    res.status(500).json({
+    return res.status(500).json({
       error: "Internal Server Error",
       message: "Failed to fetch Twitter posts",
       details: error.message,
@@ -213,18 +213,18 @@ router.post("/pipeline/twitter", authenticate, requireAdmin, async (req, res) =>
  * POST /api/data/ai/process-symptoms
  * Process symptom reports using AI (Admin only)
  */
-router.post("/ai/process-symptoms", authenticate, requireAdmin, async (req, res) => {
+router.post("/ai/process-symptoms", authenticate, requireAdmin, async (_req, res) => {
   try {
     const result = await processSymptomReports();
     
-    res.json({
+    return res.json({
       success: true,
       message: "Symptom reports processed successfully",
       ...result,
     });
   } catch (error: any) {
     console.error("Error processing symptom reports:", error);
-    res.status(500).json({
+    return res.status(500).json({
       error: "Internal Server Error",
       message: "Failed to process symptom reports",
       details: error.message,
@@ -249,13 +249,13 @@ router.post("/ai/detect-anomalies", authenticate, requireAdmin, async (req, res)
     
     const result = await detectAnomalies(timeSeriesData);
     
-    res.json({
+    return res.json({
       success: true,
       ...result,
     });
   } catch (error: any) {
     console.error("Error detecting anomalies:", error);
-    res.status(500).json({
+    return res.status(500).json({
       error: "Internal Server Error",
       message: "Failed to detect anomalies",
       details: error.message,
@@ -280,13 +280,13 @@ router.post("/ai/forecast-outbreaks", authenticate, requireAdmin, async (req, re
     
     const result = await forecastOutbreaks(historicalData || [], regions);
     
-    res.json({
+    return res.json({
       success: true,
       ...result,
     });
   } catch (error: any) {
     console.error("Error forecasting outbreaks:", error);
-    res.status(500).json({
+    return res.status(500).json({
       error: "Internal Server Error",
       message: "Failed to forecast outbreaks",
       details: error.message,

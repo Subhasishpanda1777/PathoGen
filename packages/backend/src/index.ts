@@ -81,6 +81,7 @@ app.get("/api", (req, res) => {
         verifyOTP: "POST /api/auth/verify-otp",
         resendOTP: "POST /api/auth/resend-otp",
         me: "GET /api/auth/me",
+        updateEmailNotifications: "PUT /api/auth/email-notifications (Protected)",
       },
       admin: {
         login: "POST /api/admin/login (Email + Password only)",
@@ -168,10 +169,10 @@ app.use((err: Error, req: express.Request, res: express.Response, next: express.
 
 // Setup daily email notification cron job (4:56 PM IST)
 // Cron format: minute hour day month day-of-week
-// Run at 4:56 PM IST every day
+// Run at 4:56 PM IST every day (16:56 in 24-hour format)
 // Using Asia/Kolkata timezone
-cron.schedule("59 19 * * *", async () => {
-  console.log("⏰ Daily email notification job triggered at 4:56 PM IST");
+cron.schedule("00 08 * * *", async () => {
+  console.log("⏰ Daily email notification job triggered at 8:00 AM IST");
   try {
     await sendDailyDiseaseAlertsToAllUsers();
   } catch (error) {
@@ -182,6 +183,19 @@ cron.schedule("59 19 * * *", async () => {
 });
 
 console.log("✅ Daily email notification cron job scheduled (4:56 PM IST)");
+
+// Verify email configuration on startup
+import { verifyEmailConfig } from "./services/email.service.js";
+verifyEmailConfig().then((isValid) => {
+  if (isValid) {
+    console.log("✅ Email configuration verified successfully");
+  } else {
+    console.error("❌ Email configuration invalid! Daily emails may not work.");
+    console.error("   Please check EMAIL_USER and EMAIL_PASSWORD in .env");
+  }
+}).catch((error) => {
+  console.error("❌ Error verifying email configuration:", error);
+});
 
 // Start server with error handling
 const server = app.listen(PORT, () => {

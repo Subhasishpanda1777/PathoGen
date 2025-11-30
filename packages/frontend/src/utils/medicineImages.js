@@ -1,108 +1,167 @@
 /**
  * Medicine Image Utility
- * Generates reliable medicine images that always load
+ * Gets real medicine images from online sources based on medicine name
+ * Uses multiple strategies with intelligent fallbacks
  */
 
 /**
- * Generate a data URI SVG image (guaranteed to work, no network required)
+ * Clean medicine name for image search
  */
-function generateSVGImage(text, color) {
-  const svg = `
-    <svg width="300" height="200" xmlns="http://www.w3.org/2000/svg">
-      <rect width="300" height="200" fill="#${color}"/>
-      <text x="50%" y="50%" font-family="Arial, sans-serif" font-size="24" font-weight="bold" 
-            fill="#ffffff" text-anchor="middle" dominant-baseline="middle">
-        ${text}
-      </text>
-    </svg>
-  `.trim()
+function cleanNameForImage(medicineName, genericName) {
+  const nameForImage = (genericName || medicineName || 'Medicine').trim()
   
-  return `data:image/svg+xml;base64,${btoa(svg)}`
+  return nameForImage
+    .replace(/tablets?|capsules?|syrup|suspension|injection|ip|mg|ml|g|per\s*\d+/gi, '')
+    .replace(/hydrochloride|sodium|maleate|hcl|sulphate|sulfate/gi, '')
+    .replace(/[()]/g, '')
+    .trim()
+    .split(/\s+/)[0]
+    .substring(0, 30)
+    .trim() || 'medicine'
 }
 
 /**
- * Get medicine image URL - uses reliable placeholder service
- * This ensures every medicine always has a visible image
+ * Generate color based on medicine name
  */
-export function getMedicineImageUrl(medicineName, genericName) {
-  // Use the generic name (preferred) or brand name
-  const nameForImage = (genericName || medicineName || 'Medicine').trim()
+function getColorFromName(name) {
+  if (!name) return '667eea'
   
-  // Clean the name - extract the main medicine name for display
-  let cleanName = nameForImage
-    .replace(/Tablets?|Capsules?|Syrup|Suspension|Injection|IP|mg|ml|g|per\s*\d+|and|with|hydrochloride|sodium|maleate|tablets|oral/gi, '')
-    .trim()
-    .split(/\s+/)[0] // Get first word (usually the generic name)
-    .substring(0, 15) // Limit length for display
-    .replace(/[^a-zA-Z0-9\s]/g, '') // Remove special characters
-    .trim()
-
-  if (!cleanName || cleanName.length < 2) {
-    cleanName = 'Medicine'
-  }
-
-  // Generate a consistent color based on medicine name hash
-  const hash = nameForImage.split('').reduce((acc, char) => {
+  const hash = name.toLowerCase().split('').reduce((acc, char) => {
     return char.charCodeAt(0) + ((acc << 5) - acc)
   }, 0)
   
-  // Use predefined color palette for medicine packaging colors
   const colors = [
-    '4A90E2', // Blue - common for medicines
-    '50C878', // Green - herbal/natural
-    'FF6B6B', // Red - important medicines
-    'FFA500', // Orange - vitamins
-    '9B59B6', // Purple - specialty medicines
-    '3498DB', // Light Blue
-    '2ECC71', // Dark Green
-    'F39C12', // Dark Orange
-    '1ABC9C', // Teal
-    'E74C3C', // Dark Red
-    '8E44AD', // Dark Purple
-    '16A085', // Dark Teal
+    '667eea', '10b981', 'f59e0b', 'ef4444', '8b5cf6', 
+    '06b6d4', 'ec4899', '14b8a6', '6366f1', 'f97316',
+    '22c55e', '3b82f6'
   ]
   
-  const colorIndex = Math.abs(hash) % colors.length
-  const colorHex = colors[colorIndex]
-  
-  // Use placeholder.com - it's reliable and always works
-  // Format: https://via.placeholder.com/WIDTHxHEIGHT/COLOR/TEXTCOLOR?text=TEXT
-  const imageUrl = `https://via.placeholder.com/300x200/${colorHex}/ffffff?text=${encodeURIComponent(cleanName)}`
-  
-  return imageUrl
+  return colors[Math.abs(hash) % colors.length]
 }
 
 /**
- * Get guaranteed-to-work image URL (data URI SVG)
- * Use this as ultimate fallback
+ * Escape text for XML/SVG
  */
-export function getGuaranteedImageUrl(medicineName, genericName) {
-  const nameForImage = (genericName || medicineName || 'Medicine').trim()
-  
-  let cleanName = nameForImage
-    .replace(/Tablets?|Capsules?|Syrup|Suspension|Injection|IP|mg|ml|g/gi, '')
-    .trim()
-    .substring(0, 15)
-    .replace(/[^a-zA-Z0-9\s]/g, '')
-    .trim() || 'Medicine'
-  
-  const hash = cleanName.split('').reduce((acc, char) => {
-    return char.charCodeAt(0) + ((acc << 5) - acc)
-  }, 0)
-  
-  const colors = ['4A90E2', '50C878', 'FF6B6B', 'FFA500', '9B59B6', '3498DB', '2ECC71', 'F39C12', '1ABC9C']
-  const colorHex = colors[Math.abs(hash) % colors.length]
-  
-  // Return data URI SVG - guaranteed to work, no network required
-  return generateSVGImage(cleanName, colorHex)
+function escapeXml(text) {
+  if (!text) return 'Medicine'
+  return String(text)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;')
 }
 
 /**
- * Get fallback image URL (used when primary image fails)
- * This is a guaranteed-to-work fallback
+ * Generate SVG fallback image
+ */
+function generateSVGImage(medicineName, genericName) {
+  const cleanName = cleanNameForImage(medicineName, genericName)
+  const displayName = (genericName || medicineName || 'Medicine')
+    .trim()
+    .substring(0, 18)
+    .toUpperCase()
+    .trim() || 'MEDICINE'
+  
+  const color = getColorFromName(cleanName)
+  const safeText = escapeXml(displayName)
+  const gradientId = 'grad' + Math.abs(cleanName.split('').reduce((acc, char) => char.charCodeAt(0) + acc, 0))
+  
+  const svg = `<svg width="400" height="300" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="${gradientId}" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#${color}" stop-opacity="1"/>
+        <stop offset="100%" stop-color="#${color}" stop-opacity="0.85"/>
+      </linearGradient>
+    </defs>
+    <rect width="400" height="300" fill="url(#${gradientId})" rx="8"/>
+    <ellipse cx="200" cy="120" rx="60" ry="35" fill="rgba(255,255,255,0.2)" opacity="0.5"/>
+    <ellipse cx="200" cy="120" rx="50" ry="30" fill="rgba(255,255,255,0.15)" opacity="0.6"/>
+    <text x="200" y="200" font-family="Arial, sans-serif" font-size="28" font-weight="bold" fill="#ffffff" text-anchor="middle" dominant-baseline="middle">${safeText}</text>
+    <text x="200" y="230" font-family="Arial, sans-serif" font-size="14" fill="rgba(255,255,255,0.9)" text-anchor="middle" dominant-baseline="middle">MEDICINE</text>
+  </svg>`
+  
+  const encodedSvg = encodeURIComponent(svg)
+  return `data:image/svg+xml;charset=utf-8,${encodedSvg}`
+}
+
+/**
+ * Get medicine image URL from online sources
+ * Tries multiple strategies to find real medicine images
+ */
+function getOnlineMedicineImage(medicineName, genericName) {
+  const cleanGeneric = cleanNameForImage(medicineName, genericName)
+  const fullGeneric = (genericName || '').trim()
+  const fullBrand = (medicineName || '').trim()
+  
+  // Strategy 1: Try Unsplash Source API (free, searches for images)
+  // This searches Unsplash for medicine/tablet/pill images
+  const searchTerm = cleanGeneric || 'medicine'
+  const unsplashUrl = `https://source.unsplash.com/400x300/?medicine,${encodeURIComponent(searchTerm)},tablet,pill,pharmaceutical`
+  
+  // Strategy 2: Use placeholder with medicine name (as intermediate fallback)
+  // This at least shows the medicine name
+  const displayName = (genericName || medicineName || 'Medicine').substring(0, 20).trim()
+  const color = getColorFromName(cleanGeneric)
+  const placeholderUrl = `https://via.placeholder.com/400x300/${color}/ffffff?text=${encodeURIComponent(displayName.toUpperCase())}`
+  
+  // Return Unsplash URL - it searches for actual medicine images
+  return unsplashUrl
+}
+
+/**
+ * Get alternative online image URL
+ */
+function getAlternativeOnlineImage(medicineName, genericName) {
+  const cleanGeneric = cleanNameForImage(medicineName, genericName)
+  const displayName = (genericName || medicineName || 'Medicine').substring(0, 20).trim()
+  const color = getColorFromName(cleanGeneric)
+  
+  // Use placeholder service with medicine name
+  return `https://via.placeholder.com/400x300/${color}/ffffff?text=${encodeURIComponent(displayName.toUpperCase())}`
+}
+
+/**
+ * Get medicine image URL
+ * Tries online sources first, falls back to SVG
+ */
+export function getMedicineImageUrl(medicineName, genericName) {
+  try {
+    const onlineUrl = getOnlineMedicineImage(medicineName, genericName)
+    if (onlineUrl) {
+      return onlineUrl
+    }
+  } catch (error) {
+    console.warn('Error getting online medicine image:', error)
+  }
+  
+  // Fallback to SVG
+  return generateSVGImage(medicineName, genericName)
+}
+
+/**
+ * Get fallback image URL
+ * Tries alternative online source
  */
 export function getFallbackImageUrl(medicineName, genericName) {
-  // Use the same logic as primary image to ensure consistency
-  return getMedicineImageUrl(medicineName, genericName)
+  try {
+    // Try alternative online source
+    const altUrl = getAlternativeOnlineImage(medicineName, genericName)
+    if (altUrl) {
+      return altUrl
+    }
+  } catch (error) {
+    console.warn('Error getting alternative image:', error)
+  }
+  
+  // Fallback to SVG
+  return generateSVGImage(medicineName, genericName)
 }
 
+/**
+ * Get guaranteed-to-work image URL
+ * Uses SVG - always works offline
+ */
+export function getGuaranteedImageUrl(medicineName, genericName) {
+  return generateSVGImage(medicineName, genericName)
+}

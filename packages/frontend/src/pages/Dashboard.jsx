@@ -207,10 +207,10 @@ export default function Dashboard() {
 
   // Get risk level from infection index
   const getRiskLevel = (indexValue) => {
-    if (!indexValue) return 'Unknown'
-    if (indexValue >= 70) return 'High'
-    if (indexValue >= 40) return 'Medium'
-    return 'Low'
+    if (!indexValue) return t('unknown', language)
+    if (indexValue >= 70) return t('high', language)
+    if (indexValue >= 40) return t('medium', language)
+    return t('low', language)
   }
 
   // Get heatmap color for state
@@ -231,16 +231,16 @@ export default function Dashboard() {
         <div className="container">
           {/* Header */}
           <div className="dashboard-header">
-            <h1>Health Dashboard</h1>
-            <p>Real-time insights into disease outbreaks and health trends by district</p>
+            <h1>{t('healthDashboard', language)}</h1>
+            <p>{t('realTimeInsights', language)}</p>
           </div>
 
           {/* Filters */}
           <div className="dashboard-card filters-card">
-            <h3>Filters</h3>
+            <h3>{t('filters', language)}</h3>
             <div className="filters-grid">
               <div className="filter-group">
-                <label>State</label>
+                <label>{t('state', language)}</label>
                 <select
                   value={filters.state || ''}
                   onChange={(e) => {
@@ -249,7 +249,7 @@ export default function Dashboard() {
                   }}
                   className="input"
                 >
-                  <option value="">All States</option>
+                  <option value="">{t('allStates', language)}</option>
                   {INDIAN_STATES.map((state) => (
                     <option key={state} value={state}>
                       {state}
@@ -259,7 +259,7 @@ export default function Dashboard() {
               </div>
 
               <div className="filter-group">
-                <label>District</label>
+                <label>{t('district', language)}</label>
                 <select
                   value={filters.district || ''}
                   onChange={(e) => setFilters({ ...filters, district: e.target.value || undefined })}
@@ -268,12 +268,12 @@ export default function Dashboard() {
                 >
                   <option value="">
                     {!filters.state 
-                      ? 'Select State First' 
+                      ? t('selectStateFirst', language)
                       : loadingDistricts 
-                        ? 'Loading Districts...' 
+                        ? t('loadingDistricts', language)
                         : districts.length === 0
-                          ? 'No Districts Found'
-                          : 'All Districts'}
+                          ? t('noDistrictsFound', language)
+                          : t('allDistricts', language)}
                   </option>
                   {!loadingDistricts && districts.map((district) => (
                     <option key={district} value={district}>
@@ -284,16 +284,16 @@ export default function Dashboard() {
               </div>
 
               <div className="filter-group">
-                <label>Date Range</label>
+                <label>{t('dateRange', language)}</label>
                 <select
                   value={filters.dateRange}
                   onChange={(e) => setFilters({ ...filters, dateRange: e.target.value })}
                   className="input"
                 >
-                  <option value="7d">Last 7 Days</option>
-                  <option value="30d">Last 30 Days</option>
-                  <option value="90d">Last 90 Days</option>
-                  <option value="all">All Time</option>
+                  <option value="7d">{t('last7Days', language)}</option>
+                  <option value="30d">{t('last30Days', language)}</option>
+                  <option value="90d">{t('last90Days', language)}</option>
+                  <option value="all">{t('allTime', language)}</option>
                 </select>
               </div>
 
@@ -303,7 +303,7 @@ export default function Dashboard() {
                 style={{ alignSelf: 'flex-end' }}
               >
                 <RotateCcw size={18} />
-                Reset
+                {t('resetFilters', language)}
               </button>
             </div>
           </div>
@@ -325,7 +325,7 @@ export default function Dashboard() {
                 </div>
                 <div className="stat-content">
                   <div className="stat-value">{stats.activeOutbreaks.toLocaleString('en-IN')}</div>
-                  <div className="stat-label">Active Outbreaks</div>
+                  <div className="stat-label">{t('activeOutbreaks', language)}</div>
                 </div>
               </div>
 
@@ -337,7 +337,7 @@ export default function Dashboard() {
                   <div className="stat-value stat-value-success">
                     {stats.recentReports.toLocaleString('en-IN')}
                   </div>
-                  <div className="stat-label">Recent Reports</div>
+                  <div className="stat-label">{t('recentReports', language)}</div>
                 </div>
               </div>
 
@@ -349,7 +349,7 @@ export default function Dashboard() {
                   <div className="stat-value stat-value-warning">
                     {stats.trendingDiseasesCount.toLocaleString('en-IN')}
                   </div>
-                  <div className="stat-label">Trending Diseases</div>
+                  <div className="stat-label">{t('trendingDiseases', language)}</div>
                 </div>
               </div>
             </div>
@@ -367,7 +367,7 @@ export default function Dashboard() {
             <div className="card-header">
               <h3>
                 <TrendingUp size={24} />
-                Trending Diseases {filters.district && `in ${filters.district}`}
+                {t('trendingDiseasesIn', language)} {filters.district && `${t('in', language)} ${filters.district}`}
               </h3>
             </div>
             <div className="card-content">
@@ -378,14 +378,14 @@ export default function Dashboard() {
                   ))}
                 </div>
               ) : trendingDiseases.length === 0 ? (
-                <div className="empty-state">No trending diseases data available</div>
+                <div className="empty-state">{t('noTrendingDiseasesData', language)}</div>
               ) : (
                 <div className="trending-list">
                   {trendingDiseases.map((item, index) => (
                     <div key={`${item.disease?.id || 'unknown'}-${item.district || 'no-district'}-${index}`} className="trending-item">
                       <div className="trending-rank">{index + 1}</div>
                       <div className="trending-info">
-                        <div className="trending-name">{item.disease?.name || 'Unknown Disease'}</div>
+                        <div className="trending-name">{item.disease?.name || t('unknownDisease', language)}</div>
                         <div className="trending-meta">
                           {item.district && (
                             <span className="trending-location">
@@ -394,7 +394,7 @@ export default function Dashboard() {
                             </span>
                           )}
                           <span className="trending-cases">
-                            {item.totalCases?.toLocaleString('en-IN') || 0} cases
+                            {item.totalCases?.toLocaleString('en-IN') || 0} {t('cases', language)}
                           </span>
                         </div>
                       </div>
@@ -411,7 +411,7 @@ export default function Dashboard() {
               <div className="card-header">
                 <h3>
                   <BarChart3 size={24} />
-                  Infection Index Score
+                  {t('infectionIndexScore', language)}
                   {filters.district && ` - ${filters.district}`}
                 </h3>
               </div>
@@ -437,8 +437,8 @@ export default function Dashboard() {
                       </div>
                     )}
                     <div className="infection-index-stats">
-                      <span>Reports: {infectionIndex.totalReports || 0}</span>
-                      <span>Diseases: {infectionIndex.diseaseCount || 0}</span>
+                      <span>{t('recentReports', language)}: {infectionIndex.totalReports || 0}</span>
+                      <span>{t('trendingDiseases', language)}: {infectionIndex.diseaseCount || 0}</span>
                     </div>
                   </div>
                 </div>
@@ -451,7 +451,7 @@ export default function Dashboard() {
             <div className="card-header">
               <h3>
                 <MapIcon size={24} />
-                India Heatmap - State-wise Infection Index
+                {t('indiaHeatmap', language)}
               </h3>
             </div>
             <div className="card-content">
@@ -462,7 +462,7 @@ export default function Dashboard() {
                   ))}
                 </div>
               ) : heatmapData.length === 0 ? (
-                <div className="empty-state">No heatmap data available</div>
+                <div className="empty-state">{t('noHeatmapData', language)}</div>
               ) : (
                 <div className="heatmap-container">
                   <div className="heatmap-grid">
@@ -489,15 +489,15 @@ export default function Dashboard() {
                   <div className="heatmap-legend">
                     <div className="legend-item">
                       <span className="legend-color" style={{ backgroundColor: '#dc2626' }}></span>
-                      <span>High (70+)</span>
+                      <span>{t('high', language)} (70+)</span>
                     </div>
                     <div className="legend-item">
                       <span className="legend-color" style={{ backgroundColor: '#f59e0b' }}></span>
-                      <span>Medium (40-69)</span>
+                      <span>{t('medium', language)} (40-69)</span>
                     </div>
                     <div className="legend-item">
                       <span className="legend-color" style={{ backgroundColor: '#22c55e' }}></span>
-                      <span>Low (0-39)</span>
+                      <span>{t('low', language)} (0-39)</span>
                     </div>
                   </div>
                 </div>

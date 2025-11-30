@@ -4,9 +4,12 @@ import { gsap } from 'gsap'
 import { Activity, Mail, Lock, User, ArrowRight, Shield, AlertCircle, CheckCircle } from 'lucide-react'
 import Navbar from '../components/layout/Navbar'
 import { authAPI } from '../utils/api'
+import { useLanguage } from '../contexts/LanguageContext'
+import { t } from '../translations'
 import '../styles/auth.css'
 
 export default function Register() {
+  const { language } = useLanguage()
   const navigate = useNavigate()
   const location = useLocation()
   const containerRef = useRef(null)
@@ -47,26 +50,26 @@ export default function Register() {
     setError(null)
 
     if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match')
+      setError(t('passwordsDoNotMatch', language))
       return
     }
 
     if (formData.password.length < 6) {
-      setError('Password must be at least 6 characters')
+      setError(t('passwordMustBeAtLeast', language))
       return
     }
 
     setLoading(true)
 
     try {
+      // Register endpoint now sends OTP automatically, no need to call sendOTP separately
       await authAPI.register({
         name: formData.name,
         email: formData.email,
         password: formData.password,
       })
-      await authAPI.sendOTP({ email: formData.email })
       setOtpSent(true)
-      setSuccess('Account created! OTP sent to your email.')
+      setSuccess(t('accountCreated', language))
 
       if (containerRef.current) {
         gsap.from(containerRef.current.querySelector('.otp-form'), {
@@ -77,7 +80,7 @@ export default function Register() {
         })
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'Registration failed. Please try again.')
+      setError(err.response?.data?.message || t('registrationFailed', language))
       if (containerRef.current) {
         gsap.to(containerRef.current, {
           x: [-10, 10, -10, 10, 0],
@@ -108,7 +111,7 @@ export default function Register() {
         })
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'Invalid OTP. Please try again.')
+      setError(err.response?.data?.message || t('invalidOTP', language))
       if (containerRef.current) {
         gsap.to(containerRef.current, {
           x: [-10, 10, -10, 10, 0],
@@ -129,8 +132,8 @@ export default function Register() {
             <div className="auth-logo">
               <Activity size={32} />
             </div>
-            <h1 className="auth-title">Create Account</h1>
-            <p className="auth-subtitle">Join PathoGen and contribute to public health</p>
+            <h1 className="auth-title">{t('createAccount', language)}</h1>
+            <p className="auth-subtitle">{t('joinPathoGen', language)}</p>
           </div>
 
           <div className="auth-card">
@@ -153,14 +156,14 @@ export default function Register() {
                 <div className="form-group">
                   <label className="form-label">
                     <User size={18} />
-                    Full Name
+                    {t('fullName', language)}
                   </label>
                   <input
                     type="text"
                     name="name"
                     value={formData.name}
                     onChange={handleChange}
-                    placeholder="John Doe"
+                    placeholder={t('enterYourName', language)}
                     required
                     className="input"
                   />
@@ -169,7 +172,7 @@ export default function Register() {
                 <div className="form-group">
                   <label className="form-label">
                     <Mail size={18} />
-                    Email Address
+                    {t('emailAddress', language)}
                   </label>
                   <input
                     type="email"
@@ -185,14 +188,14 @@ export default function Register() {
                 <div className="form-group">
                   <label className="form-label">
                     <Lock size={18} />
-                    Password
+                    {t('password', language)}
                   </label>
                   <input
                     type="password"
                     name="password"
                     value={formData.password}
                     onChange={handleChange}
-                    placeholder="At least 6 characters"
+                    placeholder={t('atLeast6Characters', language)}
                     required
                     className="input"
                   />
@@ -201,14 +204,14 @@ export default function Register() {
                 <div className="form-group">
                   <label className="form-label">
                     <Lock size={18} />
-                    Confirm Password
+                    {t('confirmPassword', language)}
                   </label>
                   <input
                     type="password"
                     name="confirmPassword"
                     value={formData.confirmPassword}
                     onChange={handleChange}
-                    placeholder="Re-enter password"
+                    placeholder={t('reEnterPassword', language)}
                     required
                     className="input"
                   />
@@ -218,11 +221,11 @@ export default function Register() {
                   {loading ? (
                     <>
                       <div className="spinner-small"></div>
-                      <span>Creating Account...</span>
+                      <span>{t('creatingAccount', language)}</span>
                     </>
                   ) : (
                     <>
-                      <span>Create Account</span>
+                      <span>{t('createAccount', language)}</span>
                       <ArrowRight size={18} />
                     </>
                   )}
@@ -231,12 +234,12 @@ export default function Register() {
             ) : (
               <form onSubmit={handleVerifyOTP} className="auth-form otp-form">
                 <div className="otp-info">
-                  <p>OTP sent to</p>
+                  <p>{t('otpSentTo', language)}</p>
                   <p className="otp-email">{formData.email}</p>
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">Enter 6-Digit OTP</label>
+                  <label className="form-label">{t('enter6DigitOTP', language)}</label>
                   <input
                     type="text"
                     value={otp}
@@ -256,11 +259,11 @@ export default function Register() {
                   {loading ? (
                     <>
                       <div className="spinner-small"></div>
-                      <span>Verifying...</span>
+                      <span>{t('verifying', language)}</span>
                     </>
                   ) : (
                     <>
-                      <span>Verify & Complete</span>
+                      <span>{t('verifyAndComplete', language)}</span>
                       <CheckCircle size={18} />
                     </>
                   )}
@@ -270,11 +273,11 @@ export default function Register() {
 
             <div className="auth-footer">
               <Shield size={16} />
-              <span>Your data is encrypted (AES-256) and DPDP 2023 compliant</span>
+              <span>{t('dataEncrypted', language)}</span>
             </div>
 
             <div className="auth-link">
-              Already have an account? <Link to="/login">Login here</Link>
+              {t('alreadyHaveAccount', language)} <Link to="/login">{t('loginHere', language)}</Link>
             </div>
           </div>
         </div>

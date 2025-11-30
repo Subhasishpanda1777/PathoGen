@@ -24,6 +24,7 @@
     "seed:prevention": "node scripts/seed-prevention-measures.js",
     "create:rewards-tables": "node scripts/create-rewards-tables.js",
     "scrape:medicines": "node scripts/scrape-medicines.js",
+    "download:images": "node scripts/download-medicine-images.js",
     "check-port": "node scripts/check-port.js",
     "kill-port": "node scripts/check-port.js 5000 --kill",
     "migrate:location": "node scripts/add-location-fields.js"

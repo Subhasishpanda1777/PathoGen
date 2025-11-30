@@ -24,16 +24,16 @@ const getMenuItems = (isAdmin, lang) => {
       { icon: Shield, label: t('dashboard', lang), path: '/admin/dashboard', adminOnly: true },
       { icon: FileText, label: t('reportHistory', lang), path: '/admin/reports', adminOnly: true },
       { icon: Pill, label: t('medicines', lang), path: '/admin/medicines', adminOnly: true },
-      { icon: Activity, label: t('reportHistory', lang), path: '/admin/symptoms', adminOnly: true },
+      { icon: Activity, label: t('manageSymptoms', lang), path: '/admin/symptoms', adminOnly: true },
     ]
   }
   return [
     { icon: LayoutDashboard, label: t('dashboard', lang), path: '/dashboard' },
     { icon: FileText, label: t('reportSubmit', lang), path: '/report' },
-    { icon: Shield, label: 'Prevention Measures', path: '/prevention-measures' },
+    { icon: Shield, label: t('preventionMeasures', lang), path: '/prevention-measures' },
     { icon: FileText, label: t('reportHistory', lang), path: '/dashboard/reports' },
     { icon: Pill, label: t('medicines', lang), path: '/medicines' },
-    { icon: Trophy, label: 'Rewards', path: '/rewards' },
+    { icon: Trophy, label: t('rewards', lang), path: '/rewards' },
     { icon: ShoppingCart, label: t('myCart', lang), path: '/cart' },
     { icon: Info, label: t('aboutUs', lang), path: '/about' },
   ]

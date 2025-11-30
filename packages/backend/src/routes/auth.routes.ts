@@ -66,8 +66,31 @@ router.post("/register", async (req, res) => {
       })
       .returning();
 
+    // Generate and send OTP for email verification
+    const otp = generateOTP();
+    const expiresAt = getOTPExpiration(10); // 10 minutes
+
+    // Invalidate previous OTPs for this email
+    await db.update(otpCodes).set({ used: true }).where(eq(otpCodes.email, email));
+
+    // Store new OTP
+    await db.insert(otpCodes).values({
+      email,
+      code: otp,
+      expiresAt,
+      used: false,
+    });
+
+    // Send OTP email
+    try {
+      await sendOTPEmail(email, otp);
+    } catch (emailError) {
+      console.error("Failed to send OTP email during registration:", emailError);
+      // Continue with registration even if email fails
+    }
+
     res.status(201).json({
-      message: "User registered successfully. Please verify your email with OTP.",
+      message: "User registered successfully. OTP sent to your email for verification.",
       user: {
         id: newUser.id,
         email: newUser.email,

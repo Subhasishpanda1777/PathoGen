@@ -418,6 +418,150 @@
   color: #6b7280;
 }
 
+/* Certificate Section Styles */
+.certificate-card {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  color: white;
+}
+
+.certificate-card h2 {
+  color: white;
+}
+
+.certificate-info {
+  margin-bottom: 2rem;
+  opacity: 0.9;
+  font-size: 1rem;
+}
+
+.certificate-status {
+  text-align: center;
+  padding: 2rem 1rem;
+}
+
+.certificate-status h3 {
+  font-size: 1.5rem;
+  margin: 1rem 0;
+  color: white;
+}
+
+.certificate-status p {
+  font-size: 1rem;
+  opacity: 0.9;
+  margin: 0.5rem 0;
+}
+
+.certificate-claimed {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 2rem;
+  backdrop-filter: blur(10px);
+}
+
+.certificate-check-icon {
+  color: #10b981;
+  margin-bottom: 1rem;
+}
+
+.certificate-trophy-icon {
+  color: #fbbf24;
+  margin-bottom: 1rem;
+}
+
+.certificate-progress-icon {
+  color: #f59e0b;
+  margin-bottom: 1rem;
+}
+
+.certificate-details {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin: 1.5rem 0;
+  text-align: left;
+}
+
+.certificate-detail-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.certificate-detail-item:last-child {
+  border-bottom: none;
+}
+
+.certificate-detail-item strong {
+  font-weight: 600;
+  opacity: 0.9;
+}
+
+.certificate-detail-item span {
+  font-weight: 700;
+}
+
+.certificate-eligible {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  padding: 2rem;
+  backdrop-filter: blur(10px);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.certificate-description {
+  max-width: 600px;
+  margin: 1rem auto;
+  line-height: 1.6;
+}
+
+.certificate-progress {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 2rem;
+  backdrop-filter: blur(10px);
+}
+
+.certificate-progress-text {
+  max-width: 600px;
+  margin: 1rem auto;
+  line-height: 1.6;
+}
+
+.certificate-progress-bar {
+  width: 100%;
+  max-width: 500px;
+  height: 12px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  overflow: hidden;
+  margin: 1.5rem auto;
+}
+
+.certificate-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+  border-radius: 10px;
+  transition: width 0.5s ease;
+}
+
+.certificate-progress-stats {
+  display: flex;
+  justify-content: space-between;
+  max-width: 500px;
+  margin: 0 auto;
+  font-size: 0.9rem;
+  opacity: 0.9;
+  font-weight: 600;
+}
+
+.btn-large {
+  padding: 1rem 2rem;
+  font-size: 1.1rem;
+  margin-top: 1.5rem;
+}
+
 @media (max-width: 768px) {
   .rewards-header h1 {
     font-size: 2rem;

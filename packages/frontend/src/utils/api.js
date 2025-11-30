@@ -148,6 +148,10 @@ export const rewardsAPI = {
   getLeaderboard: (limit = 50) => api.get('/api/rewards/leaderboard', { params: { limit } }),
   redeemGiftCard: (giftCardType) => api.post('/api/rewards/redeem', { giftCardType }),
   getRedemptions: () => api.get('/api/rewards/redemptions'),
+  checkCertificateEligibility: () => api.get('/api/rewards/certificate/check'),
+  claimCertificate: () => api.post('/api/rewards/certificate/claim'),
+  getCertificate: () => api.get('/api/rewards/certificate'),
+  downloadCertificate: () => api.get('/api/rewards/certificate/download', { responseType: 'blob' }),
 }
 
 export default api

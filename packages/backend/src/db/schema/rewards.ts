@@ -67,6 +67,21 @@ export const giftCardRedemptions = pgTable("gift_card_redemptions", {
   metadata: jsonb("metadata"), // Additional data
 });
 
+/**
+ * User certificates (for achievements)
+ * Each user can only have one certificate (enforced by unique constraint on userId)
+ */
+export const userCertificates = pgTable("user_certificates", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: uuid("user_id").references(() => users.id).notNull().unique(),
+  certificateType: varchar("certificate_type", { length: 100 }).default("achievement").notNull(), // achievement, contributor, etc.
+  certificateName: varchar("certificate_name", { length: 255 }).notNull(), // "100 Points Achievement Certificate"
+  pointsAtTime: integer("points_at_time").notNull(), // Points when certificate was claimed
+  certificateNumber: varchar("certificate_number", { length: 100 }).notNull().unique(), // Unique certificate number
+  claimedAt: timestamp("claimed_at").defaultNow().notNull(),
+  metadata: jsonb("metadata"), // Additional certificate data
+});
+
 export type UserBadge = typeof userBadges.$inferSelect;
 export type NewUserBadge = typeof userBadges.$inferInsert;
 export type UserReward = typeof userRewards.$inferSelect;
@@ -75,4 +90,6 @@ export type UserContribution = typeof userContributions.$inferSelect;
 export type NewUserContribution = typeof userContributions.$inferInsert;
 export type GiftCardRedemption = typeof giftCardRedemptions.$inferSelect;
 export type NewGiftCardRedemption = typeof giftCardRedemptions.$inferInsert;
+export type UserCertificate = typeof userCertificates.$inferSelect;
+export type NewUserCertificate = typeof userCertificates.$inferInsert;
 

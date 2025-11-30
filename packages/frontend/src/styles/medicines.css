@@ -146,6 +146,7 @@
   flex-direction: column;
   position: relative;
   overflow: hidden;
+  border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 .medicine-card:hover {
@@ -158,12 +159,12 @@
   width: 100%;
   height: 200px;
   overflow: hidden;
-  border-radius: 12px;
-  background: var(--bg-card);
+  border-radius: 12px 12px 0 0;
+  background: transparent;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 16px;
+  margin-bottom: 0;
   position: relative;
 }
 
@@ -173,11 +174,14 @@
   object-fit: cover;
   transition: transform 0.3s ease;
   display: block;
-  border-radius: 12px;
-  background: var(--bg-card);
+  border-radius: 12px 12px 0 0;
+  background: transparent;
   /* Ensure image always displays */
   min-height: 200px;
   min-width: 100%;
+  /* Force image to be visible */
+  visibility: visible;
+  opacity: 1;
 }
 
 .medicine-card:hover .medicine-image {

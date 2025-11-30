@@ -4,9 +4,12 @@ import { gsap } from 'gsap'
 import { Activity, Mail, Lock, ArrowRight, Shield, AlertCircle, CheckCircle, Eye, EyeOff } from 'lucide-react'
 import Navbar from '../components/layout/Navbar'
 import { authAPI } from '../utils/api'
+import { useLanguage } from '../contexts/LanguageContext'
+import { t } from '../translations'
 import '../styles/auth.css'
 
 export default function Login() {
+  const { language } = useLanguage()
   const navigate = useNavigate()
   const location = useLocation()
   const containerRef = useRef(null)
@@ -38,10 +41,10 @@ export default function Login() {
     setLoading(true)
 
     try {
+      // Login endpoint already sends OTP, no need to call sendOTP separately
       await authAPI.login({ email, password })
-      await authAPI.sendOTP({ email })
       setOtpSent(true)
-      setSuccess('OTP sent to your email!')
+      setSuccess(t('otpSentToEmail', language))
       
       if (containerRef.current) {
         gsap.from(containerRef.current.querySelector('.otp-form'), {
@@ -52,7 +55,7 @@ export default function Login() {
         })
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to send OTP. Please try again.')
+      setError(err.response?.data?.message || t('failedToSendOTP', language))
       if (containerRef.current) {
         gsap.to(containerRef.current, {
           x: [-10, 10, -10, 10, 0],
@@ -83,7 +86,7 @@ export default function Login() {
         })
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'Invalid OTP. Please try again.')
+      setError(err.response?.data?.message || t('invalidOTP', language))
       if (containerRef.current) {
         gsap.to(containerRef.current, {
           x: [-10, 10, -10, 10, 0],
@@ -105,8 +108,8 @@ export default function Login() {
             <div className="auth-logo">
               <Activity size={32} />
             </div>
-            <h1 className="auth-title">Welcome Back</h1>
-            <p className="auth-subtitle">Sign in to access your health dashboard</p>
+            <h1 className="auth-title">{t('welcomeBack', language)}</h1>
+            <p className="auth-subtitle">{t('signInToAccess', language)}</p>
           </div>
 
           {/* Login Card - Neumorphism */}
@@ -130,7 +133,7 @@ export default function Login() {
                 <div className="form-group">
                   <label className="form-label">
                     <Mail size={18} />
-                    Email Address
+                    {t('emailAddress', language)}
                   </label>
                   <input
                     type="email"
@@ -145,14 +148,14 @@ export default function Login() {
                 <div className="form-group">
                   <label className="form-label">
                     <Lock size={18} />
-                    Password
+                    {t('password', language)}
                   </label>
                   <div className="password-input-wrapper">
                     <input
                       type={showPassword ? 'text' : 'password'}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      placeholder="Enter your password"
+                      placeholder={t('enterYourPassword', language)}
                       required
                       className="input"
                     />
@@ -160,7 +163,7 @@ export default function Login() {
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
                       className="password-toggle-btn"
-                      aria-label={showPassword ? 'Hide password' : 'Show password'}
+                      aria-label={showPassword ? t('hidePassword', language) : t('showPassword', language)}
                     >
                       {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                     </button>
@@ -171,11 +174,11 @@ export default function Login() {
                   {loading ? (
                     <>
                       <div className="spinner-small"></div>
-                      <span>Sending OTP...</span>
+                      <span>{t('sendingOTP', language)}</span>
                     </>
                   ) : (
                     <>
-                      <span>Send OTP</span>
+                      <span>{t('sendOTP', language)}</span>
                       <ArrowRight size={18} />
                     </>
                   )}
@@ -184,12 +187,12 @@ export default function Login() {
             ) : (
               <form onSubmit={handleVerifyOTP} className="auth-form otp-form">
                 <div className="otp-info">
-                  <p>OTP sent to</p>
+                  <p>{t('otpSentTo', language)}</p>
                   <p className="otp-email">{email}</p>
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">Enter 6-Digit OTP</label>
+                  <label className="form-label">{t('enter6DigitOTP', language)}</label>
                   <input
                     type="text"
                     value={otp}
@@ -209,11 +212,11 @@ export default function Login() {
                   {loading ? (
                     <>
                       <div className="spinner-small"></div>
-                      <span>Verifying...</span>
+                      <span>{t('verifying', language)}</span>
                     </>
                   ) : (
                     <>
-                      <span>Verify & Login</span>
+                      <span>{t('verifyAndLogin', language)}</span>
                       <CheckCircle size={18} />
                     </>
                   )}
@@ -229,18 +232,18 @@ export default function Login() {
                   }}
                   className="btn btn-neumorphic btn-block"
                 >
-                  Change Email
+                  {t('changeEmail', language)}
                 </button>
               </form>
             )}
 
             <div className="auth-footer">
               <Shield size={16} />
-              <span>Your data is encrypted (AES-256) and DPDP 2023 compliant</span>
+              <span>{t('dataEncrypted', language)}</span>
             </div>
 
             <div className="auth-link">
-              Don't have an account? <Link to="/register">Register here</Link>
+              {t('dontHaveAccount', language)} <Link to="/register">{t('registerHere', language)}</Link>
             </div>
           </div>
         </div>

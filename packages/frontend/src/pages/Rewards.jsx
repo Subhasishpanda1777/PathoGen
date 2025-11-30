@@ -1,15 +1,22 @@
 import { useState, useEffect } from 'react'
-import { Trophy, Gift, Award, TrendingUp, ShoppingBag, ExternalLink } from 'lucide-react'
+import { Trophy, Gift, Award, TrendingUp, ShoppingBag, ExternalLink, FileText, Download, CheckCircle, AlertCircle } from 'lucide-react'
 import { rewardsAPI } from '../utils/api'
 import '../styles/rewards.css'
+
+// Certificate threshold - users need 100 points to claim certificate
+const CERTIFICATE_POINTS_THRESHOLD = 100
 
 export default function Rewards() {
   const [userRewards, setUserRewards] = useState(null)
   const [leaderboard, setLeaderboard] = useState([])
   const [userRank, setUserRank] = useState(null)
   const [redemptions, setRedemptions] = useState([])
+  const [certificate, setCertificate] = useState(null)
+  const [certificateEligibility, setCertificateEligibility] = useState(null)
   const [loading, setLoading] = useState(true)
   const [redeeming, setRedeeming] = useState(false)
+  const [claimingCertificate, setClaimingCertificate] = useState(false)
+  const [downloadingCertificate, setDownloadingCertificate] = useState(false)
   const [error, setError] = useState(null)
 
   useEffect(() => {
@@ -69,10 +76,29 @@ export default function Rewards() {
         // Continue with empty redemptions
       }
 
+      // Load certificate data
+      let certificateData = null
+      let eligibilityData = null
+      try {
+        const certRes = await rewardsAPI.getCertificate()
+        certificateData = certRes.data.certificate || null
+      } catch (err) {
+        console.error('Failed to load certificate:', err)
+      }
+
+      try {
+        const eligibilityRes = await rewardsAPI.checkCertificateEligibility()
+        eligibilityData = eligibilityRes.data
+      } catch (err) {
+        console.error('Failed to check certificate eligibility:', err)
+      }
+
       setUserRewards(rewardsData)
       setLeaderboard(leaderboardData.leaderboard)
       setUserRank(leaderboardData.userRank)
       setRedemptions(redemptionsData)
+      setCertificate(certificateData)
+      setCertificateEligibility(eligibilityData)
     } catch (err) {
       console.error('Failed to load rewards data:', err)
       setError('Failed to load some rewards data. Please refresh the page.')
@@ -96,6 +122,97 @@ export default function Rewards() {
       setError(err.response?.data?.message || 'Failed to redeem gift card')
     } finally {
       setRedeeming(false)
+    }
+  }
+
+  const handleClaimCertificate = async () => {
+    if (!confirm('Are you sure you want to claim your achievement certificate? This action cannot be undone.')) {
+      return
+    }
+
+    setClaimingCertificate(true)
+    setError(null)
+    try {
+      const response = await rewardsAPI.claimCertificate()
+      
+      // The response should include the full certificate object
+      const claimedCertificate = response.data.certificate
+      
+      if (claimedCertificate) {
+        // Set certificate immediately from response
+        setCertificate(claimedCertificate)
+        
+        // Update eligibility state to show certificate is claimed
+        setCertificateEligibility(prev => ({
+          ...prev,
+          canClaim: false,
+          hasCertificate: true,
+          reason: 'Certificate already claimed'
+        }))
+        
+        alert('Certificate claimed successfully! You can now download it.')
+      } else {
+        // Fallback: fetch certificate if not in response
+        console.warn('Certificate not in claim response, fetching...')
+        try {
+          const certResponse = await rewardsAPI.getCertificate()
+          if (certResponse.data.certificate) {
+            setCertificate(certResponse.data.certificate)
+            alert('Certificate claimed successfully! You can now download it.')
+          } else {
+            // Reload all data as last resort
+            loadRewardsData()
+            alert('Certificate claimed successfully! Please refresh to see your certificate.')
+          }
+        } catch (certErr) {
+          console.error('Failed to fetch certificate after claiming:', certErr)
+          loadRewardsData()
+          alert('Certificate claimed successfully! Please refresh to see your certificate.')
+        }
+      }
+    } catch (err) {
+      console.error('Certificate claim error:', err)
+      const errorMessage = err.response?.data?.message || err.response?.data?.error || 'Failed to claim certificate'
+      setError(errorMessage)
+      
+      // Show detailed error if available
+      if (err.response?.data?.details) {
+        console.error('Error details:', err.response.data.details)
+      }
+      
+      alert(`Error: ${errorMessage}`)
+    } finally {
+      setClaimingCertificate(false)
+    }
+  }
+
+  const handleDownloadCertificate = async () => {
+    setDownloadingCertificate(true)
+    setError(null)
+    try {
+      const response = await rewardsAPI.downloadCertificate()
+      
+      // Response.data is already a Blob when responseType is 'blob'
+      const blob = response.data
+      
+      // Create download link for PDF
+      const url = window.URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = `PathoGen-Certificate-${certificate?.certificateNumber || 'Certificate'}.pdf`
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      
+      // Clean up the URL after a short delay
+      setTimeout(() => {
+        window.URL.revokeObjectURL(url)
+      }, 100)
+    } catch (err) {
+      console.error('Certificate download error:', err)
+      setError(err.response?.data?.message || 'Failed to download certificate. Please try again.')
+    } finally {
+      setDownloadingCertificate(false)
     }
   }
 
@@ -154,6 +271,120 @@ export default function Rewards() {
               {error}
             </div>
           )}
+
+          {/* Certificate Section */}
+          <div className="rewards-card certificate-card">
+            <h2>
+              <FileText size={24} />
+              Achievement Certificate
+            </h2>
+            <p className="certificate-info">
+              Claim your certificate after reaching {CERTIFICATE_POINTS_THRESHOLD} points!
+            </p>
+            
+            {certificate ? (
+              <div className="certificate-claimed">
+                <div className="certificate-status">
+                  <CheckCircle size={48} className="certificate-check-icon" />
+                  <h3>Certificate Claimed!</h3>
+                  <p>You have successfully claimed your achievement certificate.</p>
+                  <div className="certificate-details">
+                    <div className="certificate-detail-item">
+                      <strong>Certificate Number:</strong>
+                      <span>{certificate.certificateNumber}</span>
+                    </div>
+                    <div className="certificate-detail-item">
+                      <strong>Points at Claim:</strong>
+                      <span>{certificate.pointsAtTime.toLocaleString('en-IN')} points</span>
+                    </div>
+                    <div className="certificate-detail-item">
+                      <strong>Claimed on:</strong>
+                      <span>{new Date(certificate.claimedAt).toLocaleDateString('en-IN', { 
+                        year: 'numeric', 
+                        month: 'long', 
+                        day: 'numeric' 
+                      })}</span>
+                    </div>
+                  </div>
+                  <button
+                    className="btn btn-primary btn-large"
+                    onClick={handleDownloadCertificate}
+                    disabled={downloadingCertificate}
+                  >
+                    {downloadingCertificate ? (
+                      <>
+                        <div className="spinner-small"></div>
+                        <span>Preparing Download...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Download size={20} />
+                        <span>Download Certificate</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+            ) : certificateEligibility?.canClaim ? (
+              <div className="certificate-eligible">
+                <div className="certificate-status">
+                  <Trophy size={48} className="certificate-trophy-icon" />
+                  <h3>Congratulations! 🎉</h3>
+                  <p>You've reached {certificateEligibility.points.toLocaleString('en-IN')} points!</p>
+                  <p className="certificate-description">
+                    You are eligible to claim your achievement certificate. This certificate recognizes your 
+                    outstanding contribution to public health monitoring.
+                  </p>
+                  <button
+                    className="btn btn-primary btn-large"
+                    onClick={handleClaimCertificate}
+                    disabled={claimingCertificate}
+                  >
+                    {claimingCertificate ? (
+                      <>
+                        <div className="spinner-small"></div>
+                        <span>Claiming...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Award size={20} />
+                        <span>Claim Certificate</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="certificate-progress">
+                <div className="certificate-status">
+                  <AlertCircle size={48} className="certificate-progress-icon" />
+                  <h3>Keep Going!</h3>
+                  <p className="certificate-progress-text">
+                    {certificateEligibility?.points 
+                      ? `You have ${certificateEligibility.points.toLocaleString('en-IN')} points. ` 
+                      : `You have ${totalPoints.toLocaleString('en-IN')} points. `}
+                    {certificateEligibility?.reason || `You need ${CERTIFICATE_POINTS_THRESHOLD - (certificateEligibility?.points || totalPoints)} more points to claim your certificate.`}
+                  </p>
+                  <div className="certificate-progress-bar">
+                    <div 
+                      className="certificate-progress-fill"
+                      style={{ 
+                        width: `${Math.min(((certificateEligibility?.points || totalPoints) / CERTIFICATE_POINTS_THRESHOLD) * 100, 100)}%` 
+                      }}
+                    ></div>
+                  </div>
+                  <div className="certificate-progress-stats">
+                    <span>
+                      {certificateEligibility?.points || totalPoints} / {CERTIFICATE_POINTS_THRESHOLD} points
+                    </span>
+                    <span>
+                      {Math.round(((certificateEligibility?.points || totalPoints) / CERTIFICATE_POINTS_THRESHOLD) * 100)}% Complete
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
 
           {/* Gift Card Redemption */}
           <div className="rewards-card redemption-card">

@@ -155,13 +155,13 @@ export default function Report() {
                        file.name.toLowerCase().endsWith('.jpeg')
 
     if (!isValidType) {
-      setError('Please upload a PDF, PNG, JPEG, or JPG file')
+      setError(t('pleaseUploadValidFile', language))
       return
     }
 
     // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
-      setError('File size must be less than 5MB')
+      setError(t('fileSizeMustBeLess', language))
       return
     }
 
@@ -194,12 +194,12 @@ export default function Report() {
     const allSymptoms = [...selectedSymptoms]
     
     if (allSymptoms.length === 0) {
-      setError('Please select at least one symptom')
+      setError(t('pleaseSelectAtLeastOneSymptom', language))
       return
     }
 
     if (!location.state) {
-      setError('Please select your state')
+      setError(t('pleaseSelectYourState', language))
       return
     }
 
@@ -233,7 +233,7 @@ export default function Report() {
         navigate('/dashboard')
       }, 3000)
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to submit report. Please try again.')
+      setError(err.response?.data?.message || t('failedToSubmitReport', language))
     } finally {
       setLoading(false)
     }
@@ -264,8 +264,8 @@ export default function Report() {
             <div className="container">
               <div className="report-header">
                 <Shield size={48} className="report-icon" />
-                <h1>Report Your Symptoms</h1>
-                <p>Help track disease outbreaks and protect your community by reporting symptoms</p>
+                <h1>{t('reportSymptoms', language)}</h1>
+                <p>{t('helpTrackDiseaseOutbreaks', language)}</p>
               </div>
 
               <form onSubmit={handleSubmit} className="report-form">

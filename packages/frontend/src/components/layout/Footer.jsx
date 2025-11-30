@@ -1,8 +1,11 @@
 import { Link } from 'react-router-dom'
 import { Activity, Mail, Phone, MapPin, Shield, FileText } from 'lucide-react'
+import { useLanguage } from '../../contexts/LanguageContext'
+import { t } from '../../translations'
 import '../../styles/footer.css'
 
 export default function Footer() {
+  const { language } = useLanguage()
   return (
     <footer className="footer">
       <div className="container">
@@ -16,35 +19,35 @@ export default function Footer() {
               <span className="footer-logo-text">PathoGen</span>
             </div>
             <p className="footer-description">
-              Public Health Monitoring Platform for India. Track outbreaks, find affordable medicines, and contribute to community health.
+              {t('pathoGenDescription', language)}
             </p>
           </div>
 
           {/* Quick Links */}
           <div className="footer-section">
-            <h3 className="footer-heading">Quick Links</h3>
+            <h3 className="footer-heading">{t('quickLinks', language)}</h3>
             <ul className="footer-links">
-              <li><Link to="/">Home</Link></li>
-              <li><Link to="/dashboard">Dashboard</Link></li>
-              <li><Link to="/medicines">Medicines</Link></li>
-              <li><Link to="/report">Report Symptoms</Link></li>
+              <li><Link to="/">{t('home', language)}</Link></li>
+              <li><Link to="/dashboard">{t('dashboard', language)}</Link></li>
+              <li><Link to="/medicines">{t('medicines', language)}</Link></li>
+              <li><Link to="/report">{t('reportSymptomsLink', language)}</Link></li>
             </ul>
           </div>
 
           {/* Legal */}
           <div className="footer-section">
-            <h3 className="footer-heading">Legal</h3>
+            <h3 className="footer-heading">{t('legal', language)}</h3>
             <ul className="footer-links">
               <li>
                 <Link to="/privacy">
                   <Shield size={16} />
-                  <span>Privacy Policy</span>
+                  <span>{t('privacyPolicy', language)}</span>
                 </Link>
               </li>
               <li>
                 <Link to="/terms">
                   <FileText size={16} />
-                  <span>Terms of Service</span>
+                  <span>{t('termsOfService', language)}</span>
                 </Link>
               </li>
             </ul>
@@ -52,15 +55,15 @@ export default function Footer() {
 
           {/* Contact */}
           <div className="footer-section">
-            <h3 className="footer-heading">Contact</h3>
+            <h3 className="footer-heading">{t('contact', language)}</h3>
             <ul className="footer-contact">
               <li>
                 <Mail size={16} />
-                <span>support@pathogen.in</span>
+                <span>PathoGen.co.int.in@gmail.com</span>
               </li>
               <li>
                 <Phone size={16} />
-                <span>+91-XXXX-XXXXXX</span>
+                <span>+91-7205421066</span>
               </li>
               <li>
                 <MapPin size={16} />
@@ -72,10 +75,10 @@ export default function Footer() {
 
         {/* Bottom Bar */}
         <div className="footer-bottom">
-          <p>© {new Date().getFullYear()} PathoGen. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} PathoGen. {t('allRightsReserved', language)}</p>
           <p className="footer-compliance">
             <Shield size={16} />
-            <span>DPDP 2023 Compliant</span>
+            <span>{t('dpdpCompliant', language)}</span>
           </p>
         </div>
       </div>

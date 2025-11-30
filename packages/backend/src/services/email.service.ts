@@ -4,11 +4,15 @@ import dotenv from "dotenv";
 dotenv.config();
 
 // Create transporter for Gmail
+// Remove quotes from env variables if present
+const emailUser = process.env.EMAIL_USER?.replace(/^["']|["']$/g, '') || '';
+const emailPassword = process.env.EMAIL_PASSWORD?.replace(/^["']|["']$/g, '') || '';
+
 const transporter = nodemailer.createTransport({
   service: process.env.EMAIL_SERVICE || "gmail",
   auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASSWORD,
+    user: emailUser,
+    pass: emailPassword,
   },
 });
 
@@ -16,12 +20,15 @@ const transporter = nodemailer.createTransport({
  * Send OTP email to user
  */
 export async function sendOTPEmail(email: string, otp: string): Promise<void> {
-  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASSWORD) {
+  const emailUser = process.env.EMAIL_USER?.replace(/^["']|["']$/g, '') || '';
+  const emailPassword = process.env.EMAIL_PASSWORD?.replace(/^["']|["']$/g, '') || '';
+  
+  if (!emailUser || !emailPassword) {
     throw new Error("Email configuration is missing. Please set EMAIL_USER and EMAIL_PASSWORD in .env");
   }
 
   const mailOptions = {
-    from: `PathoGen <${process.env.EMAIL_USER}>`,
+    from: `PathoGen <${emailUser}>`,
     to: email,
     subject: "PathoGen - Your OTP Code",
     html: `
@@ -86,9 +93,14 @@ PathoGen - Public Health Monitoring Platform
     await transporter.verify();
     await transporter.sendMail(mailOptions);
     console.log(`✅ OTP email sent to ${email}`);
-  } catch (error) {
+  } catch (error: any) {
     console.error("❌ Error sending OTP email:", error);
-    throw new Error("Failed to send OTP email. Please check your email configuration.");
+    const errorMessage = error?.message || error?.toString() || "Unknown error";
+    console.error("   Error details:", errorMessage);
+    if (error?.code) {
+      console.error("   Error code:", error.code);
+    }
+    throw new Error(`Failed to send OTP email: ${errorMessage}. Please check your email configuration.`);
   }
 }
 
@@ -96,12 +108,15 @@ PathoGen - Public Health Monitoring Platform
  * Send generic email (for alerts, notifications, etc.)
  */
 export async function sendEmail(email: string, subject: string, html: string, text?: string): Promise<void> {
-  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASSWORD) {
+  const emailUser = process.env.EMAIL_USER?.replace(/^["']|["']$/g, '') || '';
+  const emailPassword = process.env.EMAIL_PASSWORD?.replace(/^["']|["']$/g, '') || '';
+  
+  if (!emailUser || !emailPassword) {
     throw new Error("Email configuration is missing. Please set EMAIL_USER and EMAIL_PASSWORD in .env");
   }
 
   const mailOptions = {
-    from: `PathoGen <${process.env.EMAIL_USER}>`,
+    from: `PathoGen <${emailUser}>`,
     to: email,
     subject,
     html,
@@ -112,9 +127,14 @@ export async function sendEmail(email: string, subject: string, html: string, te
     await transporter.verify();
     await transporter.sendMail(mailOptions);
     console.log(`✅ Email sent to ${email}: ${subject}`);
-  } catch (error) {
+  } catch (error: any) {
     console.error(`❌ Error sending email to ${email}:`, error);
-    throw new Error("Failed to send email. Please check your email configuration.");
+    const errorMessage = error?.message || error?.toString() || "Unknown error";
+    console.error("   Error details:", errorMessage);
+    if (error?.code) {
+      console.error("   Error code:", error.code);
+    }
+    throw new Error(`Failed to send email: ${errorMessage}. Please check your email configuration.`);
   }
 }
 
@@ -123,10 +143,27 @@ export async function sendEmail(email: string, subject: string, html: string, te
  */
 export async function verifyEmailConfig(): Promise<boolean> {
   try {
+    const emailUser = process.env.EMAIL_USER?.replace(/^["']|["']$/g, '') || '';
+    const emailPassword = process.env.EMAIL_PASSWORD?.replace(/^["']|["']$/g, '') || '';
+    
+    if (!emailUser || !emailPassword) {
+      console.error("❌ Email configuration missing: EMAIL_USER or EMAIL_PASSWORD not set");
+      return false;
+    }
+    
     await transporter.verify();
+    console.log(`✅ Email configuration verified for: ${emailUser}`);
     return true;
-  } catch (error) {
+  } catch (error: any) {
     console.error("❌ Email configuration error:", error);
+    const errorMessage = error?.message || error?.toString() || "Unknown error";
+    console.error("   Error details:", errorMessage);
+    if (error?.code) {
+      console.error("   Error code:", error.code);
+      if (error.code === "EAUTH") {
+        console.error("   ⚠️ Authentication failed - check EMAIL_PASSWORD (use Gmail App Password, not regular password)");
+      }
+    }
     return false;
   }
 }

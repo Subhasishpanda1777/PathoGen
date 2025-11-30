@@ -2,7 +2,7 @@ import { createContext, useContext, useState, useEffect } from 'react'
 
 const LanguageContext = createContext()
 
-// Indian languages with their native names
+// 7 Indian languages + English
 export const languages = {
   en: { name: 'English', native: 'English' },
   hi: { name: 'Hindi', native: 'हिंदी' },
@@ -11,12 +11,7 @@ export const languages = {
   mr: { name: 'Marathi', native: 'मराठी' },
   ta: { name: 'Tamil', native: 'தமிழ்' },
   gu: { name: 'Gujarati', native: 'ગુજરાતી' },
-  kn: { name: 'Kannada', native: 'ಕನ್ನಡ' },
-  ml: { name: 'Malayalam', native: 'മലയാളം' },
   or: { name: 'Odia', native: 'ଓଡ଼ିଆ' },
-  pa: { name: 'Punjabi', native: 'ਪੰਜਾਬੀ' },
-  as: { name: 'Assamese', native: 'অসমীয়া' },
-  ur: { name: 'Urdu', native: 'اردو' },
 }
 
 export function LanguageProvider({ children }) {

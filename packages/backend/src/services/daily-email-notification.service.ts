@@ -26,105 +26,41 @@ interface PreventionMeasure {
 
 /**
  * Get trending diseases for a specific district
- * Uses 30-day period like Prevention Measures section, but divides into 7-day windows for daily rotation
- * Uses the same query logic as the dashboard API for consistency
+ * Uses the EXACT same logic as the dashboard API when a district is selected
+ * Shows diseases from last 30 days, grouped by diseaseId only (same as website)
  */
 async function getTrendingDiseasesForDistrict(
   state: string,
   district: string
 ): Promise<TrendingDisease[]> {
-  // Get all diseases from last 30 days (same as Prevention Measures section uses dateRange: '30d')
+  // Get all diseases from last 30 days (same as dashboard API with dateRange: '30d')
   const thirtyDaysAgo = new Date();
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
   thirtyDaysAgo.setHours(0, 0, 0, 0);
 
-  // Calculate which 7-day window to show today
-  // Divide 30 days into ~4-5 windows of 7 days each
-  // Use day of week (0-6) to rotate through windows
-  const today = new Date();
-  const dayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
-  
-  // Map day of week to window (0-6 maps to windows 0-4, cycling)
-  // This creates a rotation: Mon=0, Tue=1, Wed=2, Thu=3, Fri=4, Sat=0, Sun=1
-  const windowIndex = dayOfWeek <= 4 ? dayOfWeek : (dayOfWeek - 5);
-  
-  // Calculate date range for this window
-  // Window 0: Days 1-7 (most recent week: today to 6 days ago)
-  // Window 1: Days 8-14 (7 to 13 days ago)
-  // Window 2: Days 15-21 (14 to 20 days ago)
-  // Window 3: Days 22-28 (21 to 27 days ago)
-  // Window 4: Days 29-30 (28 to 29 days ago)
-  const daysPerWindow = 7;
-  
-  let windowStartDate: Date;
-  let windowEndDate: Date;
-  
-  if (windowIndex === 0) {
-    // Window 0: Most recent 7 days (today to 6 days ago)
-    windowEndDate = new Date();
-    windowEndDate.setHours(23, 59, 59, 999);
-    windowStartDate = new Date();
-    windowStartDate.setDate(windowStartDate.getDate() - 6);
-    windowStartDate.setHours(0, 0, 0, 0);
-  } else if (windowIndex === 4) {
-    // Window 4: Days 29-30 (28 to 29 days ago)
-    windowEndDate = new Date();
-    windowEndDate.setDate(windowEndDate.getDate() - 28);
-    windowEndDate.setHours(23, 59, 59, 999);
-    windowStartDate = new Date();
-    windowStartDate.setDate(windowStartDate.getDate() - 30);
-    windowStartDate.setHours(0, 0, 0, 0);
-  } else {
-    // Windows 1-3: Each covers 7 days
-    const endDaysAgo = windowIndex * daysPerWindow;
-    const startDaysAgo = (windowIndex + 1) * daysPerWindow - 1;
-    
-    windowEndDate = new Date();
-    windowEndDate.setDate(windowEndDate.getDate() - endDaysAgo);
-    windowEndDate.setHours(23, 59, 59, 999);
-    
-    windowStartDate = new Date();
-    windowStartDate.setDate(windowStartDate.getDate() - startDaysAgo);
-    windowStartDate.setHours(0, 0, 0, 0);
-  }
+  console.log(`📅 Fetching diseases for ${district}, ${state} - last 30 days (from ${thirtyDaysAgo.toISOString().split('T')[0]})`);
 
-  // IMPORTANT: Use case-insensitive district matching to handle variations like "Khordha" vs "Khorda"
-  // Also, the Prevention Measures API doesn't filter by date - it shows ALL diseases in district
-  // So we'll use the full 30-day period but still rotate through windows for variety
-  // If current window has no diseases, fallback to full 30 days
-  const conditions = [
-    eq(diseaseOutbreaks.state, state),
-    sql`LOWER(${diseaseOutbreaks.district}) = LOWER(${district})`, // Case-insensitive district match
-    gte(diseaseOutbreaks.reportedDate, windowStartDate),
-    lte(diseaseOutbreaks.reportedDate, windowEndDate),
-  ];
-  
-  // Also prepare fallback condition for full 30 days (like Prevention Measures section)
-  const fallbackConditions = [
-    eq(diseaseOutbreaks.state, state),
-    sql`LOWER(${diseaseOutbreaks.district}) = LOWER(${district})`,
-    gte(diseaseOutbreaks.reportedDate, thirtyDaysAgo),
-  ];
-  
-  const dayRange = windowIndex === 0 
-    ? "Days 1-7 (most recent)" 
-    : windowIndex === 4 
-    ? "Days 29-30" 
-    : `Days ${(windowIndex * 7) + 1}-${(windowIndex + 1) * 7}`;
-  console.log(`📅 Fetching diseases for ${district}, ${state} - window ${windowIndex + 1}/5: ${dayRange} (${windowStartDate.toISOString().split('T')[0]} to ${windowEndDate.toISOString().split('T')[0]})`);
-
-  // Use the same query structure as dashboard routes for consistency
+  // Use the EXACT same query structure as dashboard routes when district is selected
+  // Group ONLY by diseaseId to ensure one entry per disease (same as website)
   const selectFields = {
     diseaseId: diseaseOutbreaks.diseaseId,
-    diseaseName: sql<string>`MAX(${diseases.name})`,
+    diseaseName: sql<string>`MAX(${diseases.name})`, // Use MAX since all will be the same
     caseCount: sql<number>`sum(${diseaseOutbreaks.caseCount})`,
     trend: sql<string>`MAX(${diseaseOutbreaks.trend})`,
     trendPercentage: sql<number>`MAX(${diseaseOutbreaks.trendPercentage})`,
     riskLevel: sql<string>`MAX(${diseaseOutbreaks.riskLevel})`,
-    state: sql<string>`MAX(${diseaseOutbreaks.state})`,
-    district: sql<string>`MAX(${diseaseOutbreaks.district})`,
+    state: sql<string>`MAX(${diseaseOutbreaks.state})`, // Use MAX since all will be the same
+    district: sql<string>`MAX(${diseaseOutbreaks.district})`, // Use MAX since all will be the same
   };
 
+  // IMPORTANT: Use case-insensitive district matching to handle variations like "Khordha" vs "Khorda"
+  const conditions = [
+    eq(diseaseOutbreaks.state, state),
+    sql`LOWER(${diseaseOutbreaks.district}) = LOWER(${district})`, // Case-insensitive district match
+    gte(diseaseOutbreaks.reportedDate, thirtyDaysAgo),
+  ];
+
+  // Group ONLY by diseaseId (same as dashboard API when district is selected)
   let trending = await db
     .select(selectFields)
     .from(diseaseOutbreaks)
@@ -134,25 +70,13 @@ async function getTrendingDiseasesForDistrict(
     .orderBy(desc(sql<number>`sum(${diseaseOutbreaks.caseCount})`))
     .limit(20); // Get more to account for deduplication
 
-  // If no diseases found in current window, fallback to full 30 days (like Prevention Measures section)
+  console.log(`📊 Found ${trending.length} diseases in last 30 days for "${district}", "${state}"`);
+  
   if (trending.length === 0) {
-    console.log(`⚠️ No diseases found in current window (${windowStartDate.toISOString().split('T')[0]} to ${windowEndDate.toISOString().split('T')[0]})`);
-    console.log(`   Falling back to full 30-day period (from ${thirtyDaysAgo.toISOString().split('T')[0]})`);
-    trending = await db
-      .select(selectFields)
-      .from(diseaseOutbreaks)
-      .leftJoin(diseases, eq(diseaseOutbreaks.diseaseId, diseases.id))
-      .where(and(...fallbackConditions))
-      .groupBy(diseaseOutbreaks.diseaseId)
-      .orderBy(desc(sql<number>`sum(${diseaseOutbreaks.caseCount})`))
-      .limit(20);
-    console.log(`📊 Fallback query found ${trending.length} diseases in full 30-day period for "${district}", "${state}"`);
-    if (trending.length === 0) {
-      console.log(`   ⚠️ Still no diseases found! This might indicate:`);
-      console.log(`      1. District name mismatch (check if district is stored as "Khordha" vs "Khorda")`);
-      console.log(`      2. No disease data exists for this district in the last 30 days`);
-      console.log(`      3. State/district combination doesn't match database records`);
-    }
+    console.log(`   ⚠️ No diseases found! This might indicate:`);
+    console.log(`      1. District name mismatch (check if district is stored as "Khordha" vs "Khorda")`);
+    console.log(`      2. No disease data exists for this district in the last 30 days`);
+    console.log(`      3. State/district combination doesn't match database records`);
   }
 
   // Deduplicate by disease name (case-insensitive) - same as dashboard route
@@ -492,7 +416,7 @@ function generateDailyAlertEmail(
       <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; background: #F5F7FA;">
         <div style="background: linear-gradient(135deg, #4D9AFF 0%, #1B7BFF 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
           <h1 style="color: #FFFFFF; margin: 0;">PathoGen</h1>
-          <p style="color: #FFFFFF; margin: 10px 0 0 0;">Daily Disease Alert</p>
+          <p style="color: #FFFFFF; margin: 10px 0 0 0;">Daily Email Analysis</p>
         </div>
         
         <div style="background: #FFFFFF; padding: 40px; border-radius: 0 0 10px 10px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);">
@@ -522,7 +446,7 @@ function generateDailyAlertEmail(
           <hr style="border: none; border-top: 1px solid #E5E7EB; margin: 30px 0;">
           
           <p style="color: #9CA3AF; font-size: 12px; text-align: center; margin: 0;">
-            This is an automated daily alert from PathoGen. You can manage your email preferences in your account settings.
+            This is an automated daily email analysis from PathoGen. You can manage your email preferences in your account settings.
           </p>
         </div>
         
@@ -561,17 +485,17 @@ export async function sendDailyDiseaseAlert(userId: string): Promise<boolean> {
       return false;
     }
 
-    // Get trending diseases for user's district (rotating 7-day windows from last 30 days)
-    console.log(`📊 Fetching trending diseases for district: "${user.district}", state: "${user.state}" (7-day rotating window from last 30 days)`);
+    // Get trending diseases for user's district (same as shown on website when district is selected)
+    console.log(`📊 Fetching trending diseases for district: "${user.district}", state: "${user.state}" (last 30 days - same as website)`);
     const trendingDiseases = await getTrendingDiseasesForDistrict(user.state, user.district);
     console.log(`📊 Found ${trendingDiseases.length} trending diseases for "${user.district}":`, trendingDiseases.map(d => d.diseaseName));
     
     if (trendingDiseases.length === 0) {
       console.log(`⚠️ WARNING: No diseases found for district "${user.district}", state "${user.state}"`);
       console.log(`   This could be due to:`);
-      console.log(`   1. No diseases in the current 7-day window AND no diseases in the last 30 days`);
+      console.log(`   1. No disease data exists for this district in the last 30 days`);
       console.log(`   2. District name mismatch (e.g., "Khordha" vs "Khorda")`);
-      console.log(`   3. No disease data for this district`);
+      console.log(`   3. State/district combination doesn't match database records`);
     }
 
     // Get disease IDs
@@ -595,7 +519,7 @@ export async function sendDailyDiseaseAlert(userId: string): Promise<boolean> {
       preventionMeasures
     );
 
-    const subject = `PathoGen Daily Alert: Trending Diseases in ${user.district}, ${user.state}`;
+    const subject = `PathoGen Daily Email Analysis: Trending Diseases in ${user.district}, ${user.state}`;
 
     // Send email
     await sendEmail(user.email, subject, html);
@@ -613,6 +537,12 @@ export async function sendDailyDiseaseAlert(userId: string): Promise<boolean> {
  */
 export async function sendDailyDiseaseAlertsToAllUsers(): Promise<void> {
   console.log("📧 Starting daily disease alert email job...");
+
+  // Check email configuration
+  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASSWORD) {
+    console.error("❌ Email configuration missing! EMAIL_USER and EMAIL_PASSWORD must be set in .env");
+    throw new Error("Email configuration is missing. Please set EMAIL_USER and EMAIL_PASSWORD in .env");
+  }
 
   try {
     // Get all users with email notifications enabled and email/district/state set
@@ -635,9 +565,16 @@ export async function sendDailyDiseaseAlertsToAllUsers(): Promise<void> {
       );
 
     console.log(`📊 Found ${eligibleUsers.length} eligible users for daily alerts`);
+    
+    if (eligibleUsers.length > 0) {
+      console.log(`📋 Eligible users:`, eligibleUsers.map(u => `${u.email} (${u.district}, ${u.state})`).join(", "));
+    }
 
     if (eligibleUsers.length === 0) {
-      console.log("⏭️ No eligible users found. Skipping email job.");
+      console.log("⏭️ No eligible users found. Possible reasons:");
+      console.log("   - No users have emailNotificationsEnabled = true");
+      console.log("   - Users are missing email, district, or state");
+      console.log("   - Check database for user records");
       return;
     }
 
@@ -654,9 +591,11 @@ export async function sendDailyDiseaseAlertsToAllUsers(): Promise<void> {
       results.forEach((result, index) => {
         if (result.status === "fulfilled" && result.value) {
           successCount++;
+          console.log(`✅ Successfully sent daily alert to ${batch[index].email}`);
         } else {
           failureCount++;
-          console.error(`❌ Failed to send alert to ${batch[index].email}`);
+          const error = result.status === "rejected" ? result.reason : "Unknown error";
+          console.error(`❌ Failed to send alert to ${batch[index].email}:`, error);
         }
       });
 

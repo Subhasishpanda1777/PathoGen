@@ -2,19 +2,22 @@ import { useState, useEffect } from 'react'
 import { Link, NavLink, useLocation } from 'react-router-dom'
 import { Activity, Menu, X } from 'lucide-react'
 import LanguageSelector from '../LanguageSelector'
+import { useLanguage } from '../../contexts/LanguageContext'
+import { t } from '../../translations'
 import '../../styles/navbar.css'
 
-const navLinks = [
-  { href: '/', label: 'Home' },
-  { href: '/dashboard', label: 'Dashboard' },
-  { href: '/medicines', label: 'Medicines' },
-  { href: '/report', label: 'Report' },
-]
-
 export default function Navbar() {
+  const { language } = useLanguage()
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const location = useLocation()
+  
+  const navLinks = [
+    { href: '/', label: t('home', language) },
+    { href: '/dashboard', label: t('dashboard', language) },
+    { href: '/medicines', label: t('medicines', language) },
+    { href: '/report', label: t('reportSubmit', language) },
+  ]
 
   useEffect(() => {
     const handleScroll = () => {
@@ -63,7 +66,7 @@ export default function Navbar() {
           <div className="navbar-actions">
             <LanguageSelector />
             <Link to="/login" className="btn btn-primary">
-              Login
+              {t('login', language)}
             </Link>
           </div>
 
@@ -103,7 +106,7 @@ export default function Navbar() {
               onClick={() => setIsMobileMenuOpen(false)}
               className="btn btn-primary navbar-mobile-login"
             >
-              Login
+              {t('login', language)}
             </Link>
           </div>
         </div>

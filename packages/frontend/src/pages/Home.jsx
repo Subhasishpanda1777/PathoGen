@@ -14,11 +14,14 @@ import {
   BarChart3,
 } from 'lucide-react'
 import { dashboardAPI } from '../utils/api'
+import { useLanguage } from '../contexts/LanguageContext'
+import { t } from '../translations'
 import '../styles/home.css'
 
 gsap.registerPlugin(ScrollTrigger)
 
 export default function Home() {
+  const { language } = useLanguage()
   const heroRef = useRef(null)
   const statsRef = useRef(null)
   const featuresRef = useRef(null)
@@ -113,31 +116,31 @@ export default function Home() {
   const features = [
     {
       icon: TrendingUp,
-      title: 'Real-time Outbreak Tracking',
-      description: 'Monitor disease outbreaks across India with live updates and analytics',
+      title: t('realTimeOutbreakTracking', language),
+      description: t('realTimeOutbreakTrackingDesc', language),
     },
     {
       icon: Pill,
-      title: 'Affordable Medicine Finder',
-      description: 'Find medicines and cheaper alternatives at nearby pharmacies',
+      title: t('affordableMedicineFinder', language),
+      description: t('affordableMedicineFinderDesc', language),
     },
     {
       icon: Shield,
-      title: 'Symptom Reporting',
-      description: 'Report symptoms anonymously to help track and prevent outbreaks',
+      title: t('symptomReporting', language),
+      description: t('symptomReportingDesc', language),
     },
     {
       icon: BarChart3,
-      title: 'Health Analytics',
-      description: 'Get personalized health risk scores and recommendations',
+      title: t('healthAnalytics', language),
+      description: t('healthAnalyticsDesc', language),
     },
   ]
 
   const benefits = [
-    'Free and accessible to all',
-    'Privacy-protected data',
-    'DPDP 2023 compliant',
-    'Real-time health insights',
+    t('freeAndAccessible', language),
+    t('privacyProtected', language),
+    t('dpdpCompliant', language),
+    t('realTimeHealthInsights', language),
   ]
 
   return (
@@ -151,32 +154,31 @@ export default function Home() {
             {/* Badge */}
             <div className="hero-badge hero-item">
               <Shield size={16} />
-              <span>DPDP 2023 Compliant • Your Data is Secure</span>
+              <span>{t('dpdpCompliant', language)} • {t('privacyProtected', language)}</span>
             </div>
 
             {/* Main Heading */}
             <h1 className="hero-title hero-item">
-              Track Outbreaks.
+              {t('trackOutbreaks', language)}
               <br />
-              Find Medicines.
+              {t('findMedicinesTitle', language)}
               <br />
-              <span className="hero-title-highlight">Save Lives.</span>
+              <span className="hero-title-highlight">{t('saveLives', language)}</span>
             </h1>
 
             <p className="hero-description hero-item">
-              PathoGen is India's premier public health monitoring platform. Track disease outbreaks,
-              discover affordable medicines, and contribute to community health—all in one place.
+              {t('pathoGenDescription', language)}
             </p>
 
             {/* CTA Buttons */}
             <div className="hero-cta hero-item">
               <Link to="/login" className="btn btn-primary btn-large">
-                <span>Get Started</span>
+                <span>{t('getStarted', language)}</span>
                 <ArrowRight size={20} />
               </Link>
               <Link to="/login" className="btn btn-neumorphic btn-large">
                 <Shield size={20} />
-                <span>Report Symptoms</span>
+                <span>{t('reportSymptomsBtn', language)}</span>
               </Link>
             </div>
 
@@ -184,15 +186,15 @@ export default function Home() {
             <div ref={statsRef} className="hero-stats">
               <div className="stat-card">
                 <div className="stat-value">{stats.activeOutbreaks || 0}</div>
-                <div className="stat-label">Active Outbreaks</div>
+                <div className="stat-label">{t('activeOutbreaks', language)}</div>
               </div>
               <div className="stat-card">
                 <div className="stat-value stat-value-success">{stats.recentReports || 0}</div>
-                <div className="stat-label">Recent Reports</div>
+                <div className="stat-label">{t('recentReports', language)}</div>
               </div>
               <div className="stat-card">
                 <div className="stat-value stat-value-warning">{stats.trendingDiseasesCount || 0}</div>
-                <div className="stat-label">Trending Diseases</div>
+                <div className="stat-label">{t('trendingDiseases', language)}</div>
               </div>
             </div>
           </div>
@@ -203,8 +205,8 @@ export default function Home() {
       <section ref={featuresRef} className="features-section">
         <div className="container">
           <div className="section-header">
-            <h2>Everything You Need for Public Health</h2>
-            <p>Comprehensive tools to track, analyze, and respond to health challenges</p>
+            <h2>{t('everythingYouNeed', language)}</h2>
+            <p>{t('comprehensiveTools', language)}</p>
           </div>
 
           <div className="features-grid">
@@ -230,7 +232,7 @@ export default function Home() {
       <section className="benefits-section">
         <div className="container">
           <div className="section-header">
-            <h2>Why Choose PathoGen?</h2>
+            <h2>{t('whyChoosePathoGen', language)}</h2>
           </div>
 
           <div className="benefits-grid">
@@ -248,17 +250,17 @@ export default function Home() {
       <section className="cta-section">
         <div className="container">
           <div className="cta-content">
-            <h2 className="cta-title">Ready to Make a Difference?</h2>
+            <h2 className="cta-title">{t('readyToMakeDifference', language)}</h2>
             <p className="cta-description">
-              Join thousands of citizens contributing to public health monitoring across India
+              {t('joinThousands', language)}
             </p>
             <div className="cta-buttons">
               <Link to="/login" className="btn btn-glass btn-large">
-                <span>Get Started</span>
+                <span>{t('getStarted', language)}</span>
                 <ArrowRight size={20} />
               </Link>
               <Link to="/login" className="btn btn-neumorphic btn-large">
-                Report Symptoms
+                {t('reportSymptomsBtn', language)}
               </Link>
             </div>
           </div>

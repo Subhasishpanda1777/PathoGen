@@ -343,45 +343,39 @@ export default function Medicines() {
                         alt={`${medicine.brandName || medicine.brand_name || medicine.genericName || medicine.generic_name || 'Medicine'} medicine`}
                         className="medicine-image"
                         loading="lazy"
+                        crossOrigin="anonymous"
                         onError={(e) => {
-                          // Prevent infinite loop - check if we've already tried fallback
-                          if (e.target.dataset.fallbackAttempts) {
-                            const attempts = parseInt(e.target.dataset.fallbackAttempts) || 0
-                            if (attempts >= 2) {
-                              // Ultimate fallback - use data URI SVG (guaranteed to work)
-                              e.target.src = getGuaranteedImageUrl(
-                                medicine.brandName || medicine.brand_name || medicine.name,
-                                medicine.genericName || medicine.generic_name
-                              )
-                              return
-                            }
-                            e.target.dataset.fallbackAttempts = (attempts + 1).toString()
-                          } else {
-                            e.target.dataset.fallbackAttempts = '1'
-                          }
+                          const img = e.target
+                          // Track how many times we've tried
+                          const attemptCount = parseInt(img.dataset.attempts || '0', 10)
                           
-                          // Try fallback image
-                          const fallbackUrl = getFallbackImageUrl(
-                            medicine.brandName || medicine.brand_name || medicine.name,
-                            medicine.genericName || medicine.generic_name
-                          )
-                          
-                          // Only update if it's different to prevent infinite loop
-                          if (e.target.src !== fallbackUrl) {
-                            e.target.src = fallbackUrl
-                          } else {
-                            // If fallback is same as current, use guaranteed image
-                            e.target.src = getGuaranteedImageUrl(
+                          if (attemptCount === 0) {
+                            // First failure - try alternative online source
+                            img.dataset.attempts = '1'
+                            const altUrl = getFallbackImageUrl(
                               medicine.brandName || medicine.brand_name || medicine.name,
                               medicine.genericName || medicine.generic_name
                             )
+                            if (img.src !== altUrl) {
+                              img.src = altUrl
+                              return
+                            }
+                          }
+                          
+                          // Final fallback - guaranteed SVG
+                          const svgUrl = getGuaranteedImageUrl(
+                            medicine.brandName || medicine.brand_name || medicine.name,
+                            medicine.genericName || medicine.generic_name
+                          )
+                          if (img.src !== svgUrl) {
+                            img.src = svgUrl
                           }
                         }}
-                        onLoad={() => {
+                        onLoad={(e) => {
                           // Image loaded successfully
-                          if (medicine.brandName || medicine.genericName) {
-                            console.log('✅ Medicine image loaded:', medicine.brandName || medicine.genericName)
-                          }
+                          const img = e.target
+                          img.dataset.loaded = 'true'
+                          console.log('✅ Medicine image loaded:', medicine.brandName || medicine.genericName || medicine.name)
                         }}
                       />
                     </div>

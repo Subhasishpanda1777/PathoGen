@@ -1,9 +1,12 @@
 import Navbar from '../components/layout/Navbar'
 import Footer from '../components/layout/Footer'
 import { Shield } from 'lucide-react'
+import { useLanguage } from '../contexts/LanguageContext'
+import { t } from '../translations'
 import '../styles/legal.css'
 
 export default function Privacy() {
+  const { language } = useLanguage()
   return (
     <div className="legal-page">
       <Navbar />
@@ -11,51 +14,51 @@ export default function Privacy() {
         <div className="container">
           <div className="legal-header">
             <Shield size={48} className="legal-icon" />
-            <h1>Privacy Policy</h1>
-            <p>Last updated: {new Date().toLocaleDateString()}</p>
+            <h1>{t('privacyPolicy', language)}</h1>
+            <p>{t('lastUpdated', language)}: {new Date().toLocaleDateString()}</p>
           </div>
 
           <div className="legal-content">
             <section>
-              <h2>1. Information We Collect</h2>
-              <p>We collect information that you provide directly to us, including:</p>
+              <h2>1. {t('informationWeCollect', language)}</h2>
+              <p>{t('informationWeCollectDesc', language)}</p>
               <ul>
-                <li>Name and email address for account creation</li>
-                <li>Symptom reports and health information</li>
-                <li>Location data (state, district, city)</li>
+                <li>{t('nameEmailForAccount', language)}</li>
+                <li>{t('symptomReportsHealthInfo', language)}</li>
+                <li>{t('locationData', language)}</li>
               </ul>
             </section>
 
             <section>
-              <h2>2. How We Use Your Information</h2>
-              <p>We use the information we collect to:</p>
+              <h2>2. {t('howWeUseInformation', language)}</h2>
+              <p>{t('howWeUseInformationDesc', language)}</p>
               <ul>
-                <li>Track and monitor disease outbreaks</li>
-                <li>Provide personalized health risk assessments</li>
-                <li>Improve our services and platform</li>
-                <li>Comply with legal obligations</li>
+                <li>{t('trackMonitorOutbreaks', language)}</li>
+                <li>{t('provideHealthRiskAssessments', language)}</li>
+                <li>{t('improveServices', language)}</li>
+                <li>{t('complyWithLegalObligations', language)}</li>
               </ul>
             </section>
 
             <section>
-              <h2>3. Data Security</h2>
-              <p>We implement AES-256-GCM encryption to protect your data. All sensitive information is encrypted at rest and in transit.</p>
+              <h2>3. {t('dataSecurity', language)}</h2>
+              <p>{t('dataSecurityDesc', language)}</p>
             </section>
 
             <section>
-              <h2>4. DPDP 2023 Compliance</h2>
-              <p>PathoGen complies with the Digital Personal Data Protection Act, 2023 (DPDP Act). You have the right to:</p>
+              <h2>4. {t('dpdp2023Compliance', language)}</h2>
+              <p>{t('dpdp2023ComplianceDesc', language)}</p>
               <ul>
-                <li>Access your personal data</li>
-                <li>Rectify inaccurate data</li>
-                <li>Request deletion of your data</li>
-                <li>Data portability</li>
+                <li>{t('accessPersonalData', language)}</li>
+                <li>{t('rectifyInaccurateData', language)}</li>
+                <li>{t('requestDeletion', language)}</li>
+                <li>{t('dataPortability', language)}</li>
               </ul>
             </section>
 
             <section>
-              <h2>5. Contact Us</h2>
-              <p>For privacy-related inquiries, contact us at: privacy@pathogen.in</p>
+              <h2>5. {t('contactUs', language)}</h2>
+              <p>{t('privacyContactDesc', language)}</p>
             </section>
           </div>
         </div>

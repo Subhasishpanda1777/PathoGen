@@ -33,15 +33,11 @@ export default function About() {
           <div className="about-content">
             <section className="about-section">
               <h2>{t('ourMission', language)}</h2>
-              <p>
-                PathoGen is a comprehensive health monitoring platform designed to help communities
-                detect and respond to disease outbreaks early. We combine real-time symptom reporting,
-                data analytics, and affordable medicine discovery to create a healthier future for everyone.
-              </p>
+              <p>{t('ourMissionDescription', language)}</p>
             </section>
 
             <section className="about-section">
-              <h2>What We Do</h2>
+              <h2>{t('whatWeDo', language)}</h2>
               <div className="features-grid">
                 <div className="feature-card">
                   <div className="feature-icon-wrapper">
@@ -49,11 +45,8 @@ export default function About() {
                       <Activity size={48} strokeWidth={2.5} color="#ffffff" />
                     </div>
                   </div>
-                  <h3>Disease Tracking</h3>
-                  <p>
-                    Monitor and track disease outbreaks in real-time using community-reported symptoms
-                    and advanced analytics.
-                  </p>
+                  <h3>{t('diseaseTracking', language)}</h3>
+                  <p>{t('diseaseTrackingDesc', language)}</p>
                 </div>
                 <div className="feature-card">
                   <div className="feature-icon-wrapper">
@@ -61,11 +54,8 @@ export default function About() {
                       <Pill size={48} strokeWidth={2.5} color="#ffffff" />
                     </div>
                   </div>
-                  <h3>Affordable Medicines</h3>
-                  <p>
-                    Find affordable alternatives to expensive medicines through our comprehensive
-                    medicine database and price comparison.
-                  </p>
+                  <h3>{t('affordableMedicines', language)}</h3>
+                  <p>{t('affordableMedicinesDesc', language)}</p>
                 </div>
                 <div className="feature-card">
                   <div className="feature-icon-wrapper">
@@ -73,11 +63,8 @@ export default function About() {
                       <Shield size={48} strokeWidth={2.5} color="#ffffff" />
                     </div>
                   </div>
-                  <h3>Health Reporting</h3>
-                  <p>
-                    Submit symptom reports to help health authorities identify and respond to
-                    potential outbreaks quickly.
-                  </p>
+                  <h3>{t('healthReporting', language)}</h3>
+                  <p>{t('healthReportingDesc', language)}</p>
                 </div>
                 <div className="feature-card">
                   <div className="feature-icon-wrapper">
@@ -85,82 +72,76 @@ export default function About() {
                       <Users size={48} strokeWidth={2.5} color="#ffffff" />
                     </div>
                   </div>
-                  <h3>Community Health</h3>
-                  <p>
-                    Build a healthier community by participating in collective health monitoring
-                    and awareness programs.
-                  </p>
+                  <h3>{t('communityHealth', language)}</h3>
+                  <p>{t('communityHealthDesc', language)}</p>
                 </div>
               </div>
             </section>
 
             <section className="about-section">
-              <h2>Our Values</h2>
+              <h2>{t('ourValues', language)}</h2>
               <div className="values-list">
                 <div className="value-item">
                   <Target size={24} />
                   <div>
-                    <h3>Accuracy</h3>
-                    <p>We prioritize data accuracy and verified information in all our services.</p>
+                    <h3>{t('accuracy', language)}</h3>
+                    <p>{t('accuracyDescription', language)}</p>
                   </div>
                 </div>
                 <div className="value-item">
                   <Heart size={24} />
                   <div>
-                    <h3>Accessibility</h3>
-                    <p>Healthcare should be accessible to everyone, regardless of their location or income.</p>
+                    <h3>{t('accessibility', language)}</h3>
+                    <p>{t('accessibilityDescription', language)}</p>
                   </div>
                 </div>
                 <div className="value-item">
                   <Shield size={24} />
                   <div>
-                    <h3>Privacy</h3>
-                    <p>Your health data is protected with industry-standard security measures.</p>
+                    <h3>{t('privacy', language)}</h3>
+                    <p>{t('privacyDescription', language)}</p>
                   </div>
                 </div>
               </div>
             </section>
 
             <section className="about-section">
-              <h2>How It Works</h2>
+              <h2>{t('howItWorks', language)}</h2>
               <div className="steps-list">
                 <div className="step-item">
                   <div className="step-number">1</div>
                   <div className="step-content">
-                    <h3>Report Symptoms</h3>
-                    <p>Users report their symptoms through our easy-to-use reporting system.</p>
+                    <h3>{t('reportSymptoms', language)}</h3>
+                    <p>{t('reportSymptomsStepDesc', language)}</p>
                   </div>
                 </div>
                 <div className="step-item">
                   <div className="step-number">2</div>
                   <div className="step-content">
-                    <h3>Data Analysis</h3>
-                    <p>Our system analyzes reports to identify patterns and potential outbreaks.</p>
+                    <h3>{t('dataAnalysis', language)}</h3>
+                    <p>{t('dataAnalysisStepDesc', language)}</p>
                   </div>
                 </div>
                 <div className="step-item">
                   <div className="step-number">3</div>
                   <div className="step-content">
-                    <h3>Early Warning</h3>
-                    <p>Health authorities receive alerts about potential disease clusters.</p>
+                    <h3>{t('earlyWarning', language)}</h3>
+                    <p>{t('earlyWarningStepDesc', language)}</p>
                   </div>
                 </div>
                 <div className="step-item">
                   <div className="step-number">4</div>
                   <div className="step-content">
-                    <h3>Community Response</h3>
-                    <p>Communities can take preventive measures and access affordable healthcare.</p>
+                    <h3>{t('communityResponse', language)}</h3>
+                    <p>{t('communityResponseStepDesc', language)}</p>
                   </div>
                 </div>
               </div>
             </section>
 
             <section className="about-section">
-              <h2>Contact Us</h2>
-              <p>
-                Have questions or feedback? We'd love to hear from you. Reach out to us through
-                our support channels or visit our help center.
-              </p>
+              <h2>{t('contactUs', language)}</h2>
+              <p>{t('contactUsDescription', language)}</p>
             </section>
           </div>
         </div>
